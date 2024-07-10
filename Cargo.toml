@@ -1,0 +1,11 @@
+[package]
+name = "wgraphcal"
+version = "0.1.0"
+edition = "2021"
+authors = ["Willow Rose <nbash1984@gmail.com>"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
