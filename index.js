@@ -18,6 +18,5 @@ export async function scanner(input) {
   await ensureWasmInit();
 
   let res = wasm.return_string(input);
-  console.log("promise", res);
   return res;
 }

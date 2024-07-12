@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Willow Rose <nbash1984@gmail.com>"]
 
+
 [lib]
 crate-type = ["cdylib"]
 
@@ -11,3 +12,8 @@ crate-type = ["cdylib"]
 wasm-bindgen = "0.2"
 fancy-regex = "0.13.0"
 lazy_static = "1.5.0"
+once_cell = "1.19.0"
+
+[features]
+default = []
+logging = []
