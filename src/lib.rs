@@ -24,5 +24,15 @@ mod parser;
 #[wasm_bindgen]
 pub fn return_string(input: String) -> Vec<String> {
     util::clog!("lol");
-    parser::scanner::scan(input)
+    let lexemes = parser::scanner::scan(input);
+    util::clog!("{:?}", lexemes);
+    let tokens = parser::evaluator::evaluate(lexemes);
+    let mut tok_out: String = String::new();
+    for token in tokens {
+        tok_out += &token.to_string();
+        tok_out += ",";
+    }
+    util::clog!("{}", tok_out);
+    let out: Vec<String> = vec![tok_out];
+    out
 }

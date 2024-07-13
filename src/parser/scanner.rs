@@ -3,6 +3,10 @@ use fancy_regex::Regex;
 use lazy_static::lazy_static;
 //use once_cell::sync::lazy;
 
+macro_rules! clog {
+    ($($t:tt)*) => {};
+}
+
 lazy_static! {
     static ref NUMERIC: Regex = Regex::new(r"\G([0-9]+(\.)?[0-9]*)$").unwrap();
     static ref ALPHABETIC: Regex = Regex::new(r"\G(([a-zA-Z]+)(_(\{(\w*(})?)?)?)?)$").unwrap();

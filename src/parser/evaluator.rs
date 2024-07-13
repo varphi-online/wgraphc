@@ -1,9 +1,8 @@
-use crate::util::*;
 use fancy_regex::Regex;
 use lazy_static::lazy_static;
 //use once_cell::sync::lazy;
 
-use super::token;
+use super::token::{self, make_token, Token, Value};
 
 lazy_static! {
     static ref NUMERIC: Regex = Regex::new(r"\G([0-9]+(\.)?[0-9]*)$").unwrap();
@@ -14,4 +13,22 @@ lazy_static! {
     static ref WHITESPACE: Regex = Regex::new(r"\s").unwrap();
 }
 
-//pub fn evaluate(lexemes: Vec<String>) -> Vec<token::Operator> {}
+pub fn evaluate(lexemes: Vec<String>) -> Vec<token::Operator> {
+    let mut tokens: Vec<token::Operator> = Vec::new();
+    for lexeme in lexemes {
+        if ALPHABETIC.captures(&lexeme).unwrap().is_some() {
+            let mut to_add = make_token(Token::ID);
+            to_add.symbol.clone_from(&lexeme);
+            tokens.push(to_add);
+        } else if NUMERIC.captures(&lexeme).unwrap().is_some() {
+            let mut to_add = make_token(Token::Num);
+            to_add.symbol.clone_from(&lexeme);
+            to_add.values = Value::Number(lexeme.parse::<f64>().unwrap());
+            tokens.push(to_add);
+        } else if token::OPERATORS.contains_key(&lexeme) {
+            let to_add = make_token(token::OPERATORS.get(&lexeme).unwrap().clone());
+            tokens.push(to_add);
+        }
+    }
+    tokens
+}
