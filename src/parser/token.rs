@@ -1,3 +1,4 @@
+use crate::util::*;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
@@ -17,10 +18,10 @@ impl Default for Operator {
         Operator {
             token_type: Token::Null,
             arity: Arities::NULLARY,
-            symbol: format!(""),
+            symbol: "".to_string(),
             values: Value::Op(OpVec(Vec::new())),
             precedence: 255,
-            katex_repr: format!(""),
+            katex_repr: "".to_string(),
         }
     }
 }
@@ -28,6 +29,48 @@ impl Default for Operator {
 impl Operator {
     fn new() -> Operator {
         Operator {
+            ..Default::default()
+        }
+    }
+    pub fn from_token(type_of_token: Token) -> Operator {
+        let arity: Arities = match type_of_token {
+            Token::END | Token::SENTINEL | Token::Null | Token::OpenPar | Token::ClosePar => {
+                Arities::NULLARY
+            }
+            Token::Num | Token::ID | Token::Sqrt => Arities::UNARY,
+            Token::Add | Token::Sub | Token::Mult | Token::Div | Token::Pow => Arities::BINARY,
+        };
+        let arity_copy = arity.clone();
+        Operator {
+            arity,
+            token_type: type_of_token.clone(),
+            precedence: match &type_of_token {
+                Token::SENTINEL | Token::OpenPar | Token::ClosePar => 0,
+                Token::Pow | Token::Sqrt => 1,
+                Token::Mult | Token::Div => 2,
+                Token::Add | Token::Sub => 3,
+                _ => Operator::default().precedence,
+            },
+            values: match type_of_token {
+                Token::Num => Value::Number(f64::from(0)),
+                _ => match arity_copy {
+                    Arities::BINARY => Value::Op(OpVec(vec![Operator::new(), Operator::new()])),
+                    Arities::UNARY => Value::Op(OpVec(vec![Operator::new()])),
+                    _ => Operator::default().values,
+                },
+            },
+            symbol: (match type_of_token {
+                Token::Add => "+",
+                Token::Sub => "-",
+                Token::Mult => "*",
+                Token::Div => "/",
+                Token::Sqrt => "sqrt",
+                Token::Pow => "^",
+                Token::OpenPar => "(",
+                Token::ClosePar => ")",
+                _ => "",
+            })
+            .to_string(),
             ..Default::default()
         }
     }
@@ -47,7 +90,7 @@ impl fmt::Display for Operator {
                 )
             }
             Arities::UNARY => match self.token_type {
-                Token::Num => write!(f, "{}({})", self.symbol, self.values),
+                Token::Num => write!(f, "{}", self.values),
                 _ => write!(f, "{}({})", self.symbol, self.values.get_index(0).unwrap()),
             },
             Arities::NULLARY => {
@@ -60,14 +103,22 @@ impl fmt::Display for Operator {
 pub struct OpVec(Vec<Operator>);
 
 impl OpVec {
-    fn push(&mut self, value: Operator) {
+    pub fn new() -> OpVec {
+        OpVec(Vec::new())
+    }
+    pub fn push(&mut self, value: Operator) {
         self.0.push(value);
     }
 }
 
 impl fmt::Display for OpVec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "lol")
+        let mut out: String = "".to_string();
+        for entry in &self.0 {
+            out += &entry.to_string();
+            out += ",";
+        }
+        write!(f, "{}", out)
     }
 }
 impl Index<usize> for OpVec {
@@ -84,7 +135,7 @@ impl IndexMut<usize> for OpVec {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 enum Arities {
     #[default]
     BINARY,
@@ -121,7 +172,7 @@ impl fmt::Display for Value {
     }
 }
 
-#[derive(Default, Clone, PartialEq)]
+#[derive(Default, Clone, PartialEq, Hash, Eq)]
 pub enum Token {
     #[default]
     END,
@@ -152,81 +203,8 @@ lazy_static! {
         out.insert(")".to_string(), Token::ClosePar);
         out
     };
-}
-
-pub fn make_token(type_of_token: Token) -> Operator {
-    let mut out: Operator = Operator {
-        ..Default::default()
-    };
-    out.token_type = type_of_token.clone();
-    match type_of_token {
-        Token::END => {
-            out.arity = Arities::NULLARY;
-        }
-        Token::SENTINEL => {
-            out.arity = Arities::NULLARY;
-            out.precedence = 0;
-        }
-        Token::Null => {
-            out.arity = Arities::NULLARY;
-        }
-        Token::Num => {
-            out.arity = Arities::UNARY;
-        }
-        Token::ID => {
-            out.arity = Arities::UNARY;
-        }
-        Token::Add => {
-            out.arity = Arities::BINARY;
-            out.symbol = format!("+");
-            out.precedence = 4;
-        }
-        Token::Sub => {
-            out.arity = Arities::BINARY;
-            out.symbol = format!("-");
-            out.precedence = 4;
-        }
-        Token::Mult => {
-            out.arity = Arities::BINARY;
-            out.symbol = format!("*");
-            out.precedence = 2;
-        }
-        Token::Div => {
-            out.arity = Arities::BINARY;
-            out.symbol = format!("/");
-            out.precedence = 2;
-        }
-        Token::Sqrt => {
-            out.arity = Arities::UNARY;
-            out.symbol = format!("√");
-            out.precedence = 2;
-        }
-        Token::Pow => {
-            out.arity = Arities::BINARY;
-            out.symbol = format!("^");
-            out.precedence = 2;
-        }
-        Token::OpenPar => {
-            out.arity = Arities::NULLARY;
-            out.symbol = format!("(");
-            out.precedence = 2;
-        }
-        Token::ClosePar => {
-            out.arity = Arities::NULLARY;
-            out.symbol = format!(")");
-            out.precedence = 2;
-        }
-    }
-    match out.arity {
-        Arities::BINARY => out.values = Value::Op(OpVec(vec![Operator::new(), Operator::new()])),
-        Arities::UNARY => {
-            if out.token_type == Token::Num {
-                out.values = Value::Number(f64::from(0));
-            } else {
-                out.values = Value::Op(OpVec(vec![Operator::new()]));
-            }
-        }
-        _ => (),
-    }
-    out
+    static ref SYMBOLS: HashMap<Token, String> = OPERATORS
+        .iter()
+        .map(|(k, v)| (v.clone(), k.clone()))
+        .collect();
 }

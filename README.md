@@ -1,9 +1,9 @@
 A non-exhaustive checklist on what is needed to complete this project:
 
 - [x] Boilerplate JS and WASM interfacing.
-- [ ] Research and impl. structs to handle tokens, preferablly easily expandible
+- [x] Research and impl. structs to handle tokens, preferablly easily expandible
 - [x] Scanner for lexemes in evaluation.
-- [ ] Evaluator to to create tokens to use.
+- [x] Evaluator to to create tokens to use.
 - [ ] Impliment Recursive Descent Parser or the shunting yard algorithim to
       build and AST from tokens.
 - [ ] Global variables and variable assignment, with multiple assignment
@@ -36,7 +36,7 @@ Note: I am writing this project alongside learning Rust, so in the event that
 I learn any new paridigms or design patterns that I want/need to impl. I will
 add them here:
 
-- [ ] Debug "mode" to only compile console_log!'s when told.
+- [x] Debug "mode" to only compile console_log!'s when told.
 
 ---
 

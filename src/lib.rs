@@ -22,17 +22,17 @@ pub mod util {
 mod parser;
 
 #[wasm_bindgen]
-pub fn return_string(input: String) -> Vec<String> {
+pub fn return_string(input: String) -> String {
     util::clog!("lol");
     let lexemes = parser::scanner::scan(input);
     util::clog!("{:?}", lexemes);
     let tokens = parser::evaluator::evaluate(lexemes);
-    let mut tok_out: String = String::new();
-    for token in tokens {
-        tok_out += &token.to_string();
-        tok_out += ",";
-    }
-    util::clog!("{}", tok_out);
-    let out: Vec<String> = vec![tok_out];
-    out
+    //let mut tok_out: String = String::new();
+    //for token in tokens {
+    //    tok_out += &token.to_string();
+    //    tok_out += ",";
+    //}
+    util::clog!("{}", tokens);
+    //let out: Vec<String> = vec![tok_out];
+    format!("{}", tokens)
 }
