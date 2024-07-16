@@ -1,15 +1,17 @@
 use crate::util::*;
 use lazy_static::lazy_static;
+use num_complex::*;
 use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Index, IndexMut};
 
+#[derive(Clone)]
 pub struct Operator {
-    arity: Arities,
-    token_type: Token,
+    pub arity: Arities,
+    pub token_type: Token,
     pub symbol: String,
     pub values: Value,
-    precedence: u8,
+    pub precedence: u8,
     katex_repr: String,
 }
 
@@ -52,7 +54,7 @@ impl Operator {
                 _ => Operator::default().precedence,
             },
             values: match type_of_token {
-                Token::Num => Value::Number(f64::from(0)),
+                Token::Num => Value::Number(c64(0, 0)),
                 _ => match arity_copy {
                     Arities::BINARY => Value::Op(OpVec(vec![Operator::new(), Operator::new()])),
                     Arities::UNARY => Value::Op(OpVec(vec![Operator::new()])),
@@ -100,6 +102,7 @@ impl fmt::Display for Operator {
     }
 }
 
+#[derive(Clone)]
 pub struct OpVec(Vec<Operator>);
 
 impl OpVec {
@@ -135,6 +138,15 @@ impl IndexMut<usize> for OpVec {
     }
 }
 
+impl IntoIterator for OpVec {
+    type Item = Operator;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
 #[derive(Default, Clone)]
 enum Arities {
     #[default]
@@ -143,20 +155,37 @@ enum Arities {
     NULLARY,
 }
 
+#[derive(Clone)]
 pub enum Value {
     Op(OpVec),
-    Number(f64),
+    Number(Complex64),
+    Real(f64),
+    Imag(f64),
 }
 
 impl Value {
-    fn set_index(&mut self, i: usize, val: Operator) {
+    pub fn set_index(&mut self, i: usize, val: Operator) {
         if let Value::Op(ref mut opvector) = self {
             opvector.0[i] = val;
         }
     }
-    fn get_index(&self, i: usize) -> Option<&Operator> {
+    pub fn get_index(&self, i: usize) -> Option<&Operator> {
         if let Value::Op(ref opvector) = self {
             Some(&opvector.0[i])
+        } else {
+            None
+        }
+    }
+    pub fn set_num(&mut self, number: Complex64) {
+        if let Value::Number(ref mut num) = *self {
+            *num = number;
+        }
+    }
+    pub fn get_num(&self) -> Option<f64> {
+        if let Value::Real(ref number) = self {
+            Some(*number)
+        } else if let Value::Imag(ref number) = self {
+            Some(*number)
         } else {
             None
         }
@@ -166,8 +195,10 @@ impl Value {
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Value::Op(op) => write!(f, "{}", op),
-            Value::Number(num) => write!(f, "{}", num),
+            Value::Real(out) => write!(f, "{}", out),
+            Value::Imag(num) => write!(f, "{}i", num),
+            Value::Op(out) => write!(f, "{}", out),
+            Value::Number(out) => write!(f, "{}", out),
         }
     }
 }

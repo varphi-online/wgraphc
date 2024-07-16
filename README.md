@@ -8,7 +8,7 @@ A non-exhaustive checklist on what is needed to complete this project:
       build and AST from tokens.
 - [ ] Global variables and variable assignment, with multiple assignment
 - [ ] Function handling, arbitrary amount of arguments
-- [ ] Complex number input, _i_ operator and basic complex functions via vectors
+- [x] Complex number input, _i_ operator and basic complex functions via vectors
 - [ ] Complex trig operators, with the mclauren series used as an approximation
       around a specificly defined point.
 - [ ] Wasm & Js Rendering using webgl, currently thinking rendering with Js
