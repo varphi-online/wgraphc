@@ -8,10 +8,10 @@ macro_rules! clog {
 }
 
 lazy_static! {
-    static ref NUMERIC: Regex = Regex::new(r"\G([0-9]+(\.)?[0-9]*)$").unwrap();
+    static ref NUMERIC: Regex = Regex::new(r"\G((\d)+(\.)?(\d)*[i]?)$").unwrap();
     static ref ALPHABETIC: Regex = Regex::new(r"\G(([a-zA-Z]+)(_(\{(\w*(})?)?)?)?)$").unwrap();
     static ref OPERATIONAL: Regex = Regex::new(r"\G([\*/\-+\(\]\)\]<>^|])$").unwrap();
-    static ref NUMERIC_CHAR: Regex = Regex::new(r"[\.\d]").unwrap();
+    static ref NUMERIC_CHAR: Regex = Regex::new(r"[i\.\d]").unwrap();
     static ref ALPHABETIC_CHAR: Regex = Regex::new(r"[\w\{\}\_]").unwrap();
     static ref WHITESPACE: Regex = Regex::new(r"\s").unwrap();
 }
@@ -48,7 +48,7 @@ pub fn scan(input: String) -> Vec<String> {
             }
         }
     }
-    let out: Vec<String> = Vec::from(lexemes);
+    let out: Vec<String> = lexemes;
     out
 }
 
