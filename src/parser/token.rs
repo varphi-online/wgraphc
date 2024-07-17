@@ -102,6 +102,29 @@ impl fmt::Display for Operator {
     }
 }
 
+impl fmt::Debug for Operator {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        //write!(f)
+        match self.arity {
+            Arities::BINARY => {
+                write!(
+                    f,
+                    "{}({},{})",
+                    self.symbol,
+                    self.values.get_index(0).unwrap(),
+                    self.values.get_index(1).unwrap()
+                )
+            }
+            Arities::UNARY => match self.token_type {
+                Token::Num => write!(f, "{}", self.values),
+                _ => write!(f, "{}({})", self.symbol, self.values.get_index(0).unwrap()),
+            },
+            Arities::NULLARY => {
+                write!(f, "{}", self.symbol)
+            }
+        }
+    }
+}
 #[derive(Clone)]
 pub struct OpVec(Vec<Operator>);
 
@@ -111,6 +134,26 @@ impl OpVec {
     }
     pub fn push(&mut self, value: Operator) {
         self.0.push(value);
+    }
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut Operator> {
+        self.0.get_mut(index)
+    }
+    pub fn get(self, index: usize) -> Option<Operator> {
+        self.0.get(index).cloned()
+    }
+    pub fn remove(&mut self, index: usize) -> Operator {
+        self.0.remove(index)
+    }
+    pub fn insert(&mut self, index: usize, to_insert: Operator) {
+        if index > self.len() {
+            self.push(to_insert);
+            clog!("Insert index out of bounds: Vector too small, added to end.")
+        } else {
+            self.0.insert(index, to_insert)
+        }
     }
 }
 
@@ -174,11 +217,6 @@ impl Value {
             Some(&opvector.0[i])
         } else {
             None
-        }
-    }
-    pub fn set_num(&mut self, number: Complex64) {
-        if let Value::Number(ref mut num) = *self {
-            *num = number;
         }
     }
     pub fn get_num(&self) -> Option<f64> {
