@@ -7,6 +7,9 @@ const y2 = document.getElementById("y2");
 // Initialize the GL context
 const cnv = canvas.getContext("2d");
 cnv.font = "12px serif";
+cnv.strokeStyle = "white";
+cnv.lineWidth = 4;
+cnv.textAlign = "center";
 let canvasWidth = canvas.width;
 let canvasHeight = canvas.height;
 let aspectRatio = canvasWidth / canvasHeight;
@@ -34,32 +37,20 @@ function toScreenspace(real, imag) {
 
 resetView.addEventListener("click", function () {
   graphInfo.zoom = 0;
+  graphInfo.zoom = 0;
   zoomLog = 1;
   screenTarget = [0, 0];
   graphBounds = [-10, 10, -10, 10];
+  updateBounds();
   drawPoint();
+  grid();
 });
 
 function drawPoint() {
   cnv.clearRect(0, 0, canvasWidth, canvasHeight);
   let origin = toScreenspace(0, 0);
-  cnv.fillRect(origin[0], 0, 2, canvasHeight);
-  cnv.fillRect(0, origin[1], canvasWidth, 2);
-
-  cnv.fillText(Math.round(graphBounds[0]), 0, canvasHeight / 2, 50);
-  cnv.fillText(
-    Math.round(graphBounds[1]),
-    canvasWidth - 20,
-    canvasHeight / 2,
-    20,
-  );
-  cnv.fillText(Math.round(graphBounds[3]) + "i", canvasWidth / 2, 10, 30);
-  cnv.fillText(
-    Math.round(graphBounds[2]) + "i",
-    canvasWidth / 2,
-    canvasHeight - 10,
-    30,
-  );
+  cnv.fillRect(origin[0] - 1, 0, 2, canvasHeight);
+  cnv.fillRect(0, origin[1] - 1, canvasWidth, 2);
   grid();
 }
 
@@ -78,20 +69,7 @@ function superFloor(mult, val) {
 function grid() {
   let xScale = gridline(0);
   let yScale = gridline(1);
-  for (let i = -2; i < 3; i++) {
-    cnv.fillRect(
-      toScreenspace(xScale * i + superFloor(xScale, screenTarget[0]), 0)[0],
-      0,
-      0.5,
-      canvasHeight,
-    );
-    cnv.fillRect(
-      0,
-      toScreenspace(0, yScale * i + superFloor(yScale, screenTarget[1]))[1],
-      canvasWidth,
-      0.5,
-    );
-  }
+
   for (let i = -10; i < 10; i++) {
     cnv.fillRect(
       toScreenspace(
@@ -110,6 +88,51 @@ function grid() {
       )[1],
       canvasWidth,
       0.1,
+    );
+  }
+
+  for (let i = -2; i < 3; i++) {
+    let xpos = toScreenspace(
+      xScale * i + superFloor(xScale, screenTarget[0]),
+      0,
+    );
+    let ypos = toScreenspace(
+      0,
+      yScale * i + superFloor(yScale, screenTarget[1]),
+    );
+    //Major X lines
+    cnv.fillRect(xpos[0], 0, 0.5, canvasHeight);
+    // Major x text
+    let text = xScale * i + superFloor(xScale, screenTarget[0]);
+    text = text >= 1 ? Math.round(text) : text;
+    cnv.strokeText(
+      text,
+      xpos[0],
+      Math.min(Math.max(xpos[1] + 18, 14), canvasHeight - 8),
+      100,
+    );
+    cnv.fillText(
+      text,
+      xpos[0],
+      Math.min(Math.max(xpos[1] + 18, 14), canvasHeight - 8),
+      100,
+    );
+    //Major Y Lines
+    cnv.fillRect(0, ypos[1], canvasWidth, 0.5);
+    //major Y text";
+    text = yScale * i + superFloor(yScale, screenTarget[1]);
+    text = text >= 1 ? Math.round(text) : text;
+    cnv.strokeText(
+      text,
+      Math.min(Math.max(ypos[0] - 15, 10), canvasWidth - 20),
+      ypos[1] + 4,
+      100,
+    );
+    cnv.fillText(
+      text,
+      Math.min(Math.max(ypos[0] - 15, 10), canvasWidth - 20),
+      ypos[1] + 4,
+      100,
     );
   }
 

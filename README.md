@@ -11,8 +11,8 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Complex number input, _i_ operator and basic complex functions via vectors
 - [ ] Complex trig operators, with the mclauren series used as an approximation
       around a specificly defined point.
-- [ ] Wasm & Js Rendering using webgl, currently thinking rendering with Js
-- [ ] Drawing an infinitely resizable and moveble grid, containerized for
+- [x] Wasm & Js Rendering using HTML5 canvas, currently thinking rendering with Js
+- [x] Drawing an infinitely resizable and moveble grid, containerized for
       multiple instances in the future
 - [ ] Calculating an output 2d vector array from an input 2d vector array using
       AST (or other method of function representation) given a range and
