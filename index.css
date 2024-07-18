@@ -1,0 +1,27 @@
+.flex-container {
+  display: flex;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+  left: 0;
+  top: 0;
+}
+
+.scale {
+  position: relative;
+  height: 100vh;
+  width: 2px;
+}
+
+#scalar {
+  position: sticky;
+  border-left: 2px solid black;
+  width: 10px;
+  height: 3vh;
+  cursor: ew-resize;
+}
+
+#canvasContainer {
+  height: 100vh;
+  top: 0;
+}

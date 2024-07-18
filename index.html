@@ -6,18 +6,35 @@
   <title>Hello World - Rust</title>
   <script type="module" src="./index.js"></script>
   <script type="module" src="./interface.js"></script>
-  <script src="webgl.js" type="module"></script>
+  <script src="graph.js" type="module"></script>
+  <link rel="stylesheet" href="index.css" />
 </head>
 
-<body>
-  <h1>Graphing Calculator</h1>
+<body style="overflow: hidden; margin: 0;">
+  <div style="display: flex" class="flex-container">
 
-  <input id="input-box" oninput="inpUpdate(this.value);" />
+    <div id="input" style="height: 100cqh; margin-right: 1px;">
+      <div style="padding: 15px;">
+        <h1>Graphing Calculator</h1>
 
-  <p id="out0">Lexemes:</p>
-  <canvas style="border: 1px solid black;" id="glcanvas" width="600" height="600"></canvas>
-  <button id="resetView" type="button">Reset View</button>
-  <input id="x1"/><input id="x2"/><input id="y1"/><input id="y2"/>
+        <input id="input-box" oninput="inpUpdate(this.value);" />
+
+        <p id="out0">Lexemes:</p>
+        <button id="resetView" type="button">Reset View</button>
+      </div>
+    </div>
+    <div class="scale"></div>
+    <div id="scalar"></div>
+    <div class="scale"></div>
+    <div id="canvasContainer">
+      <canvas style="border-left: 1px solid black;
+        height: 100vh;
+        width: 100%;
+        top: 0;" id="glcanvas"></canvas>
+    </div>
+    <!--<input id="x1" /><input id="x2" /><input id="y1" /><input id="y2" />-->
+  </div>
+  </div>
 </body>
 
 </html>

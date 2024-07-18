@@ -155,7 +155,8 @@ pub fn analyze(inp: OpVec) -> OpVec {
     // will be stored in this variable
     let mut stored_num: (usize, Option<Operator>) = (0, None);
     skip_flag = false;
-
+    // !!! IMPORTANT THE ONLY NUMBERS THAT SHOULD BE COLLAPPSED ARE ONES DIRECTLY ADJACENT TO ONE
+    // ANOTHER, ANYTHING ELSE WILL HAVE BEEN HANDLED BY THE PREVIOUS SECOTION, SO REDO THIS
     for i in 0..intermediate.len() {
         if skip_flag {
             continue;
