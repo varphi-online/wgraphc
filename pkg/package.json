@@ -1,0 +1,18 @@
+{
+  "name": "wgraphcal",
+  "type": "module",
+  "collaborators": [
+    "Willow Rose <nbash1984@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "wgraphcal_bg.wasm",
+    "wgraphcal.js",
+    "wgraphcal.d.ts"
+  ],
+  "main": "wgraphcal.js",
+  "types": "wgraphcal.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

@@ -19,6 +19,7 @@ pub mod util {
     }
     pub(crate) use clog;
 }
+mod graph;
 mod parser;
 
 #[wasm_bindgen]

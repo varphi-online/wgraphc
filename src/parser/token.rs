@@ -150,7 +150,10 @@ impl OpVec {
     pub fn insert(&mut self, index: usize, to_insert: Operator) {
         if index > self.len() {
             self.push(to_insert);
-            clog!("Insert index out of bounds: Vector too small, added to end.")
+            clog!(
+                "{}",
+                format!("Insert index out of bounds: Vector too small, added to end.")
+            );
         } else {
             self.0.insert(index, to_insert)
         }
@@ -167,6 +170,7 @@ impl fmt::Display for OpVec {
         write!(f, "{}", out)
     }
 }
+
 impl Index<usize> for OpVec {
     type Output = Operator;
 

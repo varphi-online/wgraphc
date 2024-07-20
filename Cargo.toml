@@ -14,7 +14,11 @@ fancy-regex = "0.13.0"
 lazy_static = "1.5.0"
 once_cell = "1.19.0"
 num-complex = "0.4"
+js-sys = "0.3.69"
 
 [features]
 default = []
 logging = []
+
+[profile.release]
+opt-level = 3
