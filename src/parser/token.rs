@@ -232,6 +232,14 @@ impl Value {
             None
         }
     }
+    pub fn get_type(&self) -> u8 {
+        match self {
+            Value::Number(_) => 3,
+            Value::Real(_) => 1,
+            Value::Imag(_) => 2,
+            _ => 4,
+        }
+    }
 }
 
 impl fmt::Display for Value {

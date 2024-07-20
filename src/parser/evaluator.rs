@@ -54,167 +54,97 @@ pub fn evaluate(lexemes: Vec<String>) -> OpVec {
 pub fn analyze(inp: OpVec) -> OpVec {
     let length: usize = inp.len();
     let mut intermediate: OpVec = OpVec::new();
+
     let mut skip_flag: bool = false;
+    let mut num_skip_flag: bool = false;
+
     for i in 0..length {
+        let token = inp.clone().get(i).unwrap();
         if skip_flag {
             skip_flag = false;
             continue;
         }
-        let token = inp.clone().get(i).unwrap();
-        if token.token_type == Token::Sub {
-            #[warn(clippy::collapsible_if)]
-            if i > 0 {
-                if let (Some(a), Some(b)) = (inp.clone().get(i - 1), inp.clone().get(i + 1)) {
-                    // Handles the case of a - sign between two parts of a complex number
-                    if a.token_type == Token::Num && b.token_type == Token::Num {
-                        match (&a.values, &b.values) {
-                            (Value::Real(_), Value::Imag(_)) => {
-                                let mut temporary = b.clone();
-                                temporary.values =
-                                    Value::Imag(-temporary.values.get_num().unwrap());
-                                intermediate.push(temporary);
-                                skip_flag = true;
-                                continue;
-                            }
-                            (Value::Imag(_), Value::Real(_)) => {
-                                let mut temporary = b.clone();
-                                temporary.values =
-                                    Value::Real(-temporary.values.get_num().unwrap());
-                                intermediate.push(temporary);
-                                skip_flag = true;
-                                continue;
-                            }
-                            _ => (),
-                        }
-                    }
-                    // Case of a - sign between a non-num and number
-                    else if a.token_type != Token::Num && b.token_type == Token::Num {
-                        match b.values {
-                            Value::Real(_) => {
-                                let mut temporary = b.clone();
-                                temporary.values =
-                                    Value::Real(-temporary.values.get_num().unwrap());
-                                intermediate.push(temporary);
-                                skip_flag = true;
-                                continue;
-                            }
-                            Value::Imag(_) => {
-                                let mut temporary = b.clone();
-                                temporary.values =
-                                    Value::Imag(-temporary.values.get_num().unwrap());
-                                intermediate.push(temporary);
-                                skip_flag = true;
-                                continue;
-                            }
-                            _ => (),
-                        }
-                    }
-                }
-            } else if let Some(b) = inp.clone().get(i + 1) {
-                if b.token_type == Token::Num {
-                    match b.values {
-                        Value::Real(_) => {
-                            let mut temporary = b.clone();
-                            temporary.values = Value::Real(-temporary.values.get_num().unwrap());
-                            intermediate.push(temporary);
-                            skip_flag = true;
-                            continue;
-                        }
-                        Value::Imag(_) => {
-                            let mut temporary = b.clone();
-                            temporary.values = Value::Imag(-temporary.values.get_num().unwrap());
-                            intermediate.push(temporary);
-                            skip_flag = true;
-                            continue;
-                        }
-                        _ => (),
-                    }
-                }
-            }
-        } else if token.token_type == Token::Add {
-            if let (Some(a), Some(b)) = (inp.clone().get(i - 1), inp.clone().get(i + 1)) {
-                // Handles the case of a - sign between two parts of a complex number
-                if a.token_type == Token::Num && b.token_type == Token::Num {
-                    match (&a.values, &b.values) {
-                        (Value::Real(_), Value::Imag(_)) | (Value::Imag(_), Value::Real(_)) => {
-                            continue;
-                        }
-                        _ => (),
-                    }
-                }
-            }
-        }
 
+        // While iterating through a raw list of tokens handle number ones
+        if token.token_type == Token::Num {
+            if num_skip_flag {
+                num_skip_flag = false;
+                continue;
+            }
+
+            if let Some(next_token) = inp.clone().get(i + 1) {
+                match next_token.token_type {
+                    Token::Add => {
+                        if let Some(second_num) = inp.clone().get(i + 2) {
+                            if token.values.get_type() != second_num.values.get_type() {
+                                intermediate.push(create_complex_from_two(token, second_num, 1.0));
+                                num_skip_flag = true;
+                                skip_flag = true;
+                                continue;
+                            }
+                        }
+                    }
+                    Token::Sub => {
+                        if let Some(second_num) = inp.clone().get(i + 2) {
+                            if token.values.get_type() != second_num.values.get_type() {
+                                intermediate.push(create_complex_from_two(token, second_num, -1.0));
+                                num_skip_flag = true;
+                                skip_flag = true;
+                                continue;
+                            }
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            intermediate.push(create_complex(token));
+            continue;
+        }
         intermediate.push(token);
     }
 
-    // Collapses seperate real and imaginary components into one complex number
-    let mut output: OpVec = OpVec::new();
+    intermediate
+}
 
-    // Any number passed while traversing the stack that is without a complex part
-    // will be stored in this variable
-    let mut stored_num: (usize, Option<Operator>) = (0, None);
-    skip_flag = false;
-    // !!! IMPORTANT THE ONLY NUMBERS THAT SHOULD BE COLLAPPSED ARE ONES DIRECTLY ADJACENT TO ONE
-    // ANOTHER, ANYTHING ELSE WILL HAVE BEEN HANDLED BY THE PREVIOUS SECOTION, SO REDO THIS
-    for i in 0..intermediate.len() {
-        if skip_flag {
-            continue;
+fn create_complex_from_two(input_a: Operator, input_b: Operator, mult: f64) -> Operator {
+    match (input_a.values.get_type(), input_b.values.get_type()) {
+        (1, 2) => {
+            let mut out: Operator = Operator::from_token(Token::Num);
+            out.values = Value::Number(Complex64::new(
+                input_a.values.get_num().unwrap(),
+                mult * input_b.values.get_num().unwrap(),
+            ));
+            out.symbol = format!("{}", out.values);
+            out
         }
-        if let Some(token) = intermediate.get_mut(i) {
-            if token.token_type == Token::Num {
-                if let Some(mut tok) = stored_num.clone().1 {
-                    match (&tok.values, &token.values) {
-                        (Value::Real(_), Value::Imag(_)) => {
-                            token.values = Value::Number(Complex64::new(
-                                tok.values.get_num().unwrap(),
-                                token.values.get_num().unwrap(),
-                            ));
-                            stored_num = (0, None);
-                            output.push(token.clone());
-                        }
-                        (Value::Imag(_), Value::Real(_)) => {
-                            token.values = Value::Number(Complex64::new(
-                                token.values.get_num().unwrap(),
-                                tok.values.get_num().unwrap(),
-                            ));
-                            stored_num = (0, None);
-                            output.push(token.clone());
-                        }
-                        (Value::Imag(_), Value::Imag(_)) => {
-                            tok.values =
-                                Value::Number(Complex64::new(0.0, tok.values.get_num().unwrap()));
-                            output.insert(stored_num.0, tok);
-                            stored_num = (i, Some(token.clone()));
-                        }
-                        (Value::Real(_), Value::Real(_)) => {
-                            tok.values =
-                                Value::Number(Complex64::new(tok.values.get_num().unwrap(), 0.0));
-                            output.insert(stored_num.0, tok);
-                            stored_num = (i, Some(token.clone()));
-                        }
-                        _ => (),
-                    }
-                } else {
-                    stored_num = (i, Some(token.clone()));
-                }
-            } else {
-                output.push(token.clone());
-            }
+        (2, 1) => {
+            let mut out: Operator = Operator::from_token(Token::Num);
+            out.values = Value::Number(Complex64::new(
+                input_b.values.get_num().unwrap(),
+                mult * input_a.values.get_num().unwrap(),
+            ));
+            out.symbol = format!("{}", out.values);
+            out
         }
+        _ => panic!("This should never happen"),
     }
-    if let Some(mut item) = stored_num.1 {
-        match item.values {
-            Value::Imag(_) => {
-                item.values = Value::Number(Complex64::new(0.0, item.values.get_num().unwrap()))
-            }
-            Value::Real(_) => {
-                item.values = Value::Number(Complex64::new(item.values.get_num().unwrap(), 0.0))
-            }
-            _ => (),
+}
+
+fn create_complex(input_a: Operator) -> Operator {
+    match input_a.values.get_type() {
+        1 => {
+            let mut out: Operator = Operator::from_token(Token::Num);
+            out.values = Value::Number(Complex64::new(input_a.values.get_num().unwrap(), 0.0));
+            out.symbol = format!("{}", out.values);
+            out
         }
-        clog!("Inserting {} to output at {}", item, stored_num.0);
-        output.insert(stored_num.0, item);
+        2 => {
+            let mut out: Operator = Operator::from_token(Token::Num);
+            out.values = Value::Number(Complex64::new(0.0, input_a.values.get_num().unwrap()));
+            out.symbol = format!("{}", out.values);
+            out
+        }
+        3 => input_a,
+        _ => panic!("This should never happen"),
     }
-    output
 }
