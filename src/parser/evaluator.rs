@@ -64,45 +64,57 @@ pub fn analyze(inp: OpVec) -> OpVec {
             skip_flag = false;
             continue;
         }
-
-        // While iterating through a raw list of tokens handle number ones
-        if token.token_type == Token::Num {
-            if num_skip_flag {
-                num_skip_flag = false;
-                continue;
-            }
-
-            if let Some(next_token) = inp.clone().get(i + 1) {
-                match next_token.token_type {
-                    Token::Add => {
-                        if let Some(second_num) = inp.clone().get(i + 2) {
-                            if token.values.get_type() != second_num.values.get_type() {
-                                intermediate.push(create_complex_from_two(token, second_num, 1.0));
-                                num_skip_flag = true;
-                                skip_flag = true;
-                                continue;
-                            }
-                        }
+        match token.token_type {
+            Token::Sub => {
+                if let Some(next_token) = inp.clone().get(i + 1) {
+                    if next_token.token_type == Token::Num {
+                        intermediate.push(create_complex(next_token, -1.0));
+                        num_skip_flag = true;
+                        continue;
                     }
-                    Token::Sub => {
-                        if let Some(second_num) = inp.clone().get(i + 2) {
-                            if token.values.get_type() != second_num.values.get_type() {
-                                intermediate.push(create_complex_from_two(token, second_num, -1.0));
-                                num_skip_flag = true;
-                                skip_flag = true;
-                                continue;
-                            }
-                        }
-                    }
-                    _ => (),
                 }
             }
-            intermediate.push(create_complex(token));
-            continue;
+            // While iterating through a raw list of tokens handle number ones
+            Token::Num => {
+                if num_skip_flag {
+                    num_skip_flag = false;
+                    continue;
+                }
+
+                if let Some(next_token) = inp.clone().get(i + 1) {
+                    match next_token.token_type {
+                        Token::Add => {
+                            if let Some(second_num) = inp.clone().get(i + 2) {
+                                if token.values.get_type() != second_num.values.get_type() {
+                                    intermediate
+                                        .push(create_complex_from_two(token, second_num, 1.0));
+                                    num_skip_flag = true;
+                                    skip_flag = true;
+                                    continue;
+                                }
+                            }
+                        }
+                        Token::Sub => {
+                            if let Some(second_num) = inp.clone().get(i + 2) {
+                                if token.values.get_type() != second_num.values.get_type() {
+                                    intermediate
+                                        .push(create_complex_from_two(token, second_num, -1.0));
+                                    num_skip_flag = true;
+                                    skip_flag = true;
+                                    continue;
+                                }
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+                intermediate.push(create_complex(token, 1.0));
+                continue;
+            }
+            _ => (),
         }
         intermediate.push(token);
     }
-
     intermediate
 }
 
@@ -130,17 +142,23 @@ fn create_complex_from_two(input_a: Operator, input_b: Operator, mult: f64) -> O
     }
 }
 
-fn create_complex(input_a: Operator) -> Operator {
+fn create_complex(input_a: Operator, mult: f64) -> Operator {
     match input_a.values.get_type() {
         1 => {
             let mut out: Operator = Operator::from_token(Token::Num);
-            out.values = Value::Number(Complex64::new(input_a.values.get_num().unwrap(), 0.0));
+            out.values = Value::Number(Complex64::new(
+                mult * input_a.values.get_num().unwrap(),
+                0.0,
+            ));
             out.symbol = format!("{}", out.values);
             out
         }
         2 => {
             let mut out: Operator = Operator::from_token(Token::Num);
-            out.values = Value::Number(Complex64::new(0.0, input_a.values.get_num().unwrap()));
+            out.values = Value::Number(Complex64::new(
+                0.0,
+                mult * input_a.values.get_num().unwrap(),
+            ));
             out.symbol = format!("{}", out.values);
             out
         }
