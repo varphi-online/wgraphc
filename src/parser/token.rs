@@ -135,13 +135,16 @@ impl OpVec {
     pub fn push(&mut self, value: Operator) {
         self.0.push(value);
     }
+    pub fn pop(&mut self) -> Option<Operator> {
+        self.0.pop()
+    }
     pub fn len(&self) -> usize {
         self.0.len()
     }
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Operator> {
         self.0.get_mut(index)
     }
-    pub fn get(self, index: usize) -> Option<Operator> {
+    pub fn get(&self, index: usize) -> Option<Operator> {
         self.0.get(index).cloned()
     }
     pub fn remove(&mut self, index: usize) -> Operator {
