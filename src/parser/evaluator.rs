@@ -31,9 +31,15 @@ pub fn evaluate(lexemes: Vec<String>) -> OpVec {
     let mut tokens: OpVec = OpVec::new();
     for lexeme in lexemes {
         if ALPHABETIC.captures(&lexeme).unwrap().is_some() {
-            let mut to_add = Operator::from_token(Token::ID);
-            to_add.symbol.clone_from(&lexeme);
-            tokens.push(to_add);
+            if token::OPERATORS.contains_key(&lexeme) {
+                clog!("Adding something special");
+                let to_add = Operator::from_token(token::OPERATORS.get(&lexeme).unwrap().clone());
+                tokens.push(to_add);
+            } else {
+                let mut to_add = Operator::from_token(Token::ID);
+                to_add.symbol.clone_from(&lexeme);
+                tokens.push(to_add);
+            }
         } else if NUMERIC.captures(&lexeme).unwrap().is_some() {
             let mut to_add = Operator::from_token(Token::Num);
             to_add.symbol.clone_from(&lexeme);
@@ -48,6 +54,7 @@ pub fn evaluate(lexemes: Vec<String>) -> OpVec {
             tokens.push(to_add);
         }
     }
+    clog!("Made tokens");
     tokens
 }
 
@@ -207,6 +214,7 @@ pub fn analyze(inp: OpVec) -> OpVec {
         }
         output.push(token);
     }
+    output.push(Operator::from_token(Token::END));
     output
 }
 

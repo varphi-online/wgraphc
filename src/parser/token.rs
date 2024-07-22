@@ -70,10 +70,46 @@ impl Operator {
                 Token::Pow => "^",
                 Token::OpenPar => "(",
                 Token::ClosePar => ")",
+                Token::END => "END",
                 _ => "",
             })
             .to_string(),
             ..Default::default()
+        }
+    }
+    pub fn eval(&self, variable: Complex64) -> Complex64 {
+        let error: &str = "Improperly constructed input";
+        match self.token_type {
+            Token::Num => self.values.get_complex().expect(error),
+            Token::ID => variable,
+            Token::Add => {
+                self.values.get_index(0).expect(error).eval(variable)
+                    + self.values.get_index(1).expect(error).eval(variable)
+            }
+            Token::Sub => {
+                self.values.get_index(0).expect(error).eval(variable)
+                    - self.values.get_index(1).expect(error).eval(variable)
+            }
+            Token::Mult => {
+                self.values.get_index(0).expect(error).eval(variable)
+                    * self.values.get_index(1).expect(error).eval(variable)
+            }
+            Token::Div => {
+                self.values.get_index(0).expect(error).eval(variable)
+                    / self.values.get_index(1).expect(error).eval(variable)
+            }
+            Token::Sqrt => self.values.get_index(0).expect(error).eval(variable).sqrt(),
+            Token::Pow => self
+                .values
+                .get_index(0)
+                .expect(error)
+                .eval(variable)
+                .powc(self.values.get_index(1).expect(error).eval(variable)),
+            Token::SENTINEL => {
+                clog!("What?");
+                Complex64::new(f64::INFINITY, f64::INFINITY)
+            }
+            _ => panic!("{}", error),
         }
     }
 }
@@ -166,9 +202,11 @@ impl OpVec {
 impl fmt::Display for OpVec {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut out: String = "".to_string();
-        for entry in &self.0 {
-            out += &entry.to_string();
-            out += ",";
+        for i in 0..self.0.len() {
+            out += &self[i].to_string();
+            if i + 1 < self.0.len() {
+                out += ",";
+            }
         }
         write!(f, "{}", out)
     }
@@ -197,8 +235,18 @@ impl IntoIterator for OpVec {
     }
 }
 
-#[derive(Default, Clone)]
-enum Arities {
+impl FromIterator<Operator> for OpVec {
+    fn from_iter<I: IntoIterator<Item = Operator>>(iter: I) -> Self {
+        let mut c = OpVec::new();
+        for i in iter {
+            c.push(i);
+        }
+        c
+    }
+}
+
+#[derive(Default, Clone, PartialEq, Eq)]
+pub enum Arities {
     #[default]
     BINARY,
     UNARY,
@@ -222,6 +270,13 @@ impl Value {
     pub fn get_index(&self, i: usize) -> Option<&Operator> {
         if let Value::Op(ref opvector) = self {
             Some(&opvector.0[i])
+        } else {
+            None
+        }
+    }
+    pub fn get_complex(&self) -> Option<Complex64> {
+        if let Value::Number(ref number) = self {
+            Some(*number)
         } else {
             None
         }
@@ -272,6 +327,29 @@ pub enum Token {
     Pow,
     OpenPar,
     ClosePar,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let out: String = (match self {
+            Token::Add => "+",
+            Token::Sub => "-",
+            Token::Mult => "*",
+            Token::Div => "/",
+            Token::Sqrt => "sqrt",
+            Token::Pow => "^",
+            Token::OpenPar => "(",
+            Token::ClosePar => ")",
+            Token::END => "END",
+            Token::SENTINEL => "SENTINEL",
+            Token::Num => "Num",
+            Token::ID => "ID",
+            Token::Null => "Null",
+        })
+        .to_string();
+
+        write!(f, "{}", out)
+    }
 }
 
 lazy_static! {

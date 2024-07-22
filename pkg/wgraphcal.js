@@ -64,40 +64,6 @@ function passStringToWasm0(arg, malloc, realloc) {
     WASM_VECTOR_LEN = offset;
     return ptr;
 }
-/**
-* @param {number} x1
-* @param {number} x2
-* @param {number} y1
-* @param {number} y2
-* @param {number} canvas_pixel_width
-* @param {number} canvas_pixel_height
-* @param {boolean} wasm_size_sscalc
-* @param {string} x_axis
-* @param {string} y_axis
-*/
-export function faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, wasm_size_sscalc, x_axis, y_axis) {
-    const ptr0 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    wasm.faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, wasm_size_sscalc, ptr0, len0, ptr1, len1);
-}
-
-/**
-* @returns {number}
-*/
-export function get_buf_as_ptr() {
-    const ret = wasm.get_buf_as_ptr();
-    return ret >>> 0;
-}
-
-/**
-* @returns {bigint}
-*/
-export function get_resolution() {
-    const ret = wasm.get_resolution();
-    return ret;
-}
 
 let cachedInt32Memory0 = null;
 
@@ -137,6 +103,40 @@ export function return_string(input) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
+}
+
+/**
+* @param {number} x1
+* @param {number} x2
+* @param {number} y1
+* @param {number} y2
+* @param {number} canvas_pixel_width
+* @param {number} canvas_pixel_height
+* @param {string} x_axis
+* @param {string} y_axis
+*/
+export function faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, x_axis, y_axis) {
+    const ptr0 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    wasm.faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, ptr0, len0, ptr1, len1);
+}
+
+/**
+* @returns {number}
+*/
+export function get_buf_as_ptr() {
+    const ret = wasm.get_buf_as_ptr();
+    return ret >>> 0;
+}
+
+/**
+* @returns {bigint}
+*/
+export function get_resolution() {
+    const ret = wasm.get_resolution();
+    return ret;
 }
 
 async function __wbg_load(module, imports) {

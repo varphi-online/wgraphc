@@ -17,7 +17,7 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [ ] Calculating an output 2d vector array from an input 2d vector array using
       AST (or other method of function representation) given a range and
       percision determined by the grid's view window in WASM.<sup>1</sup>
-- [ ] Rendering a series of points and line from the 2d vector array by only
+- [x] Rendering a series of points and line from the 2d vector array by only
       graphing the reals
 - [ ] Being able to select the coordinate space of the output for different views
 - [ ] Multiple views that move simultaneously of the output data

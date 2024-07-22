@@ -1,5 +1,6 @@
 import init from "./pkg/wgraphcal.js";
 import { faster_call,return_string,get_buf_as_ptr,get_resolution} from "./pkg/wgraphcal.js";
+
 export let bufferPointer;
 let wasmInitialized = false;
 let rustWasm;
@@ -32,10 +33,11 @@ export async function scanner(input) {
 }
 
 
-export async function squaredvals(bounds,cw,ch,toggle){
+
+export async function squaredvals(bounds,cw,ch,haxis,vaxis){
   await ensureWasmInit();
-  faster_call(...bounds,cw,ch,toggle,"r","r");
-  let a = new Float64Array(rustWasm.memory.buffer).slice(bufferPointer,bufferPointer+(4*(Number(get_resolution())**2)))
+  faster_call(...bounds,cw,ch,haxis,vaxis);
+  let a = new Float64Array(rustWasm.memory.buffer).slice(bufferPointer,bufferPointer+(2*(Number(get_resolution())**2)))
 //console.log(a);
   return(a);
 }
