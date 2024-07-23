@@ -29,6 +29,11 @@ mod parser;
 static MAIN_FUNC: Lazy<RwLock<Option<parser::token::Operator>>> = Lazy::new(|| RwLock::new(None));
 
 #[wasm_bindgen]
+pub fn str_to_lexemes(input: String) -> String {
+    format!("2")
+}
+
+#[wasm_bindgen]
 pub fn return_string(input: String) -> String {
     let lexemes = parser::scanner::scan(input);
     util::clog!("Lexemes: {:?}", lexemes);

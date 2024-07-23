@@ -39,7 +39,14 @@ impl Operator {
             Token::END | Token::SENTINEL | Token::Null | Token::OpenPar | Token::ClosePar => {
                 Arities::NULLARY
             }
-            Token::Num | Token::ID | Token::Sqrt => Arities::UNARY,
+            Token::Num
+            | Token::ID
+            | Token::Sqrt
+            | Token::Sin
+            | Token::Cos
+            | Token::Tan
+            | Token::Log
+            | Token::Ln => Arities::UNARY,
             Token::Add | Token::Sub | Token::Mult | Token::Div | Token::Pow => Arities::BINARY,
         };
         let arity_copy = arity.clone();
@@ -48,8 +55,8 @@ impl Operator {
             token_type: type_of_token.clone(),
             precedence: match &type_of_token {
                 Token::SENTINEL | Token::OpenPar | Token::ClosePar => 0,
-                Token::Pow | Token::Sqrt => 1,
-                Token::Mult | Token::Div => 2,
+                Token::Pow | Token::Sqrt | Token::Log | Token::Ln => 1,
+                Token::Mult | Token::Div | Token::Sin | Token::Cos | Token::Tan => 2,
                 Token::Add | Token::Sub => 3,
                 _ => Operator::default().precedence,
             },
@@ -68,6 +75,11 @@ impl Operator {
                 Token::Div => "/",
                 Token::Sqrt => "sqrt",
                 Token::Pow => "^",
+                Token::Sin => "sin",
+                Token::Cos => "cos",
+                Token::Tan => "tan",
+                Token::Log => "log",
+                Token::Ln => "ln",
                 Token::OpenPar => "(",
                 Token::ClosePar => ")",
                 Token::END => "END",
@@ -105,6 +117,16 @@ impl Operator {
                 .expect(error)
                 .eval(variable)
                 .powc(self.values.get_index(1).expect(error).eval(variable)),
+            Token::Sin => self.values.get_index(0).expect(error).eval(variable).sin(),
+            Token::Cos => self.values.get_index(0).expect(error).eval(variable).cos(),
+            Token::Tan => self.values.get_index(0).expect(error).eval(variable).tan(),
+            Token::Log => self
+                .values
+                .get_index(0)
+                .expect(error)
+                .eval(variable)
+                .log10(),
+            Token::Ln => self.values.get_index(0).expect(error).eval(variable).ln(),
             Token::SENTINEL => {
                 clog!("What?");
                 Complex64::new(f64::INFINITY, f64::INFINITY)
@@ -325,6 +347,11 @@ pub enum Token {
     Div,
     Sqrt,
     Pow,
+    Sin,
+    Cos,
+    Tan,
+    Log,
+    Ln,
     OpenPar,
     ClosePar,
 }
@@ -338,6 +365,11 @@ impl fmt::Display for Token {
             Token::Div => "/",
             Token::Sqrt => "sqrt",
             Token::Pow => "^",
+            Token::Sin => "sin",
+            Token::Cos => "cos",
+            Token::Tan => "tan",
+            Token::Log => "log",
+            Token::Ln => "ln",
             Token::OpenPar => "(",
             Token::ClosePar => ")",
             Token::END => "END",
@@ -360,6 +392,11 @@ lazy_static! {
         out.insert("*".to_string(), Token::Mult);
         out.insert("/".to_string(), Token::Div);
         out.insert("sqrt".to_string(), Token::Sqrt);
+        out.insert("sin".to_string(), Token::Sin);
+        out.insert("cos".to_string(), Token::Cos);
+        out.insert("tan".to_string(), Token::Tan);
+        out.insert("log".to_string(), Token::Log);
+        out.insert("ln".to_string(), Token::Ln);
         out.insert("^".to_string(), Token::Pow);
         out.insert("(".to_string(), Token::OpenPar);
         out.insert(")".to_string(), Token::ClosePar);

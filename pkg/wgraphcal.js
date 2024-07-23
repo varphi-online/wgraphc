@@ -64,6 +64,41 @@ function passStringToWasm0(arg, malloc, realloc) {
     WASM_VECTOR_LEN = offset;
     return ptr;
 }
+/**
+* @param {number} x1
+* @param {number} x2
+* @param {number} y1
+* @param {number} y2
+* @param {number} canvas_pixel_width
+* @param {number} canvas_pixel_height
+* @param {string} x_axis
+* @param {string} y_axis
+* @param {boolean} calculate_screensapce
+* @param {number} slice
+*/
+export function faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, x_axis, y_axis, calculate_screensapce, slice) {
+    const ptr0 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    wasm.faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, ptr0, len0, ptr1, len1, calculate_screensapce, slice);
+}
+
+/**
+* @returns {number}
+*/
+export function get_buf_as_ptr() {
+    const ret = wasm.get_buf_as_ptr();
+    return ret >>> 0;
+}
+
+/**
+* @returns {bigint}
+*/
+export function get_resolution() {
+    const ret = wasm.get_resolution();
+    return ret;
+}
 
 let cachedInt32Memory0 = null;
 
@@ -86,6 +121,29 @@ function getStringFromWasm0(ptr, len) {
 * @param {string} input
 * @returns {string}
 */
+export function str_to_lexemes(input) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.str_to_lexemes(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        deferred2_0 = r0;
+        deferred2_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+/**
+* @param {string} input
+* @returns {string}
+*/
 export function return_string(input) {
     let deferred2_0;
     let deferred2_1;
@@ -103,40 +161,6 @@ export function return_string(input) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
-}
-
-/**
-* @param {number} x1
-* @param {number} x2
-* @param {number} y1
-* @param {number} y2
-* @param {number} canvas_pixel_width
-* @param {number} canvas_pixel_height
-* @param {string} x_axis
-* @param {string} y_axis
-*/
-export function faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, x_axis, y_axis) {
-    const ptr0 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    wasm.faster_call(x1, x2, y1, y2, canvas_pixel_width, canvas_pixel_height, ptr0, len0, ptr1, len1);
-}
-
-/**
-* @returns {number}
-*/
-export function get_buf_as_ptr() {
-    const ret = wasm.get_buf_as_ptr();
-    return ret >>> 0;
-}
-
-/**
-* @returns {bigint}
-*/
-export function get_resolution() {
-    const ret = wasm.get_resolution();
-    return ret;
 }
 
 async function __wbg_load(module, imports) {

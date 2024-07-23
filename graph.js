@@ -37,6 +37,10 @@ let canvas = {
     canvas.object.style.width = canvas.width + "px";
     canvas.object.height = canvas.height;
     canvas.object.width = canvas.width;
+    cnv.font = "15px serif";
+cnv.strokeStyle = "white";
+cnv.lineWidth = 3;
+cnv.textAlign = "center";
   }
 }
 canvas.init();
@@ -47,7 +51,7 @@ const cnv = canvas.object.getContext("2d");
 canvas.resetBitmap();
 cnv.font = "15px serif";
 cnv.strokeStyle = "white";
-cnv.lineWidth = 4;
+cnv.lineWidth = 3;
 cnv.textAlign = "center";
 let click = false;
 
@@ -72,6 +76,10 @@ let graph = {
     this.zoom = 0;
     this.screenTarget = [0, 0];
     this.zoomLog = 1;
+    cnv.font = "15px serif";
+cnv.strokeStyle = "white";
+cnv.lineWidth = 3;
+cnv.textAlign = "center";
   },
   updateBounds: function () {
     let inverseZL = 1 / this.zoomLog;
@@ -125,7 +133,8 @@ CanvasRenderingContext2D.prototype.curve = function (h, r, f, c) { r = (typeof r
 export async function render() {
   let frameTime = new Date;
   cnv.clearRect(0, 0, canvas.width, canvas.height);
-  let values = await wasm.squaredvals(graph.bounds, canvas.width, canvas.height, horizontal,vertical);
+  grid();
+  let values = await wasm.squaredvals(graph.bounds, canvas.width, canvas.height, horizontal,vertical,true);
 
   //drawCurve(cnv,pts);
   let points = [];
@@ -135,18 +144,17 @@ export async function render() {
     cnv.fillRect(points[i] - 1, points[i + 1] - 1, 3, 3);
     }
   }
+  
   if (contCheck) {
   console.log(points);
-  cnv.strokeStyle = "black";
+  cnv.strokeStyle = "red";
   cnv.beginPath();
-  //cnv.moveTo(points[0], points[1]);
   cnv.curve(points);
-  //cnv.lineTo(points.at(-2), points.at(-1));
   cnv.stroke()
   cnv.strokeStyle = "white";
   }
   ft.innerText = ("Render time: " + (new Date - frameTime) + "ms\n Dots to render:" + Math.round(Math.sqrt(values.length * 1.8)) + "\nZoom: " + 0.5 / graph.zoomLog + "\nScale Factor x: " + graph.scaleFactor[0] + "\nScale Factor y: " + graph.scaleFactor[1] + "\nCanvas width: " + canvas.width + "\nCanvas height: " + canvas.height + "\nBounds: " + graph.bounds.map(val => Math.round(1000 * val) / 1000));
-  grid();
+  
 }
 
 function gridline(int) {
@@ -181,6 +189,8 @@ function grid() {
   // so we make a different amount of lines for each to eliminiate draw calls
 
   let text;
+  let xAdd = horizontal.endsWith("i")? "i": "";
+  let yAdd = vertical.endsWith("i")? "i": "";
 
   //Major X lines
   for (let i = -7; i < 8; i++) {
@@ -195,13 +205,13 @@ function grid() {
     text = xScale * i + superFloor(xScale, graph.screenTarget[0]);
     text = precision(text) == 0 ? Math.round(text) : text;
     cnv.strokeText(
-      text,
+      text+xAdd,
       xpos[0],
       Math.min(Math.max(xpos[1] + 18, 14), canvas.height - 8),
       150,
     );
     cnv.fillText(
-      text,
+      text+xAdd,
       xpos[0],
       Math.min(Math.max(xpos[1] + 18, 14), canvas.height - 8),
       150,
@@ -237,13 +247,13 @@ function grid() {
       cnv.textAlign = "right";
     }
     cnv.strokeText(
-      text,
+      text+yAdd,
       Math.min(Math.max(ypos[0] - 15, 10), canvas.width - 10),
       ypos[1] + 4,
       150,
     );
     cnv.fillText(
-      text,
+      text+yAdd,
       Math.min(Math.max(ypos[0] - 15, 10), canvas.width - 10),
       ypos[1] + 4,
       150,

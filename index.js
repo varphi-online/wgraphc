@@ -34,9 +34,9 @@ export async function scanner(input) {
 
 
 
-export async function squaredvals(bounds,cw,ch,haxis,vaxis){
+export async function squaredvals(bounds,cw,ch,haxis,vaxis,ssc){
   await ensureWasmInit();
-  faster_call(...bounds,cw,ch,haxis,vaxis);
+  faster_call(...bounds,cw,ch,haxis,vaxis,ssc,0);
   let a = new Float64Array(rustWasm.memory.buffer).slice(bufferPointer,bufferPointer+(2*(Number(get_resolution())**2)))
 //console.log(a);
   return(a);
