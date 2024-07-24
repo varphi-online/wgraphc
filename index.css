@@ -1,27 +1,192 @@
-.flex-container {
-  display: flex;
-  padding: 0;
-  margin: 0;
-  align-items: center;
-  left: 0;
-  top: 0;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+@import url();
+
+
+#canvas{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
 }
 
-.scale {
-  position: relative;
-  height: 100vh;
-  width: 2px;
+#frameTime{
+    font-family: "Space Grotesk";
+    font-size: .8em;
+    position: absolute;
+    top:0;
+    padding-left: 4px;
+    margin: 0;
 }
 
-#scalar {
-  position: sticky;
-  border-left: 2px solid black;
-  width: 10px;
-  height: 3vh;
-  cursor: ew-resize;
+#hider {
+    position:fixed;
+    height: 5vh;
+    width: 2.6vh;
+    left: -2.5vh;
+    top: 50%;
+    
+}
+#hiddenHider{
+    position: fixed;
+    height: 80vh;
+    top: -10vh;
+    width: 120%;
+    z-index: -30;
+}
+#hider::before{
+    
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 5rem  0 0 5rem;
+    background-color:#505c63a5;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    z-index: -10;
 }
 
-#canvasContainer {
-  height: 100vh;
-  top: 0;
+#menu::before{
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border-radius: 20px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background-color:#505c63a5;
+    z-index: -10;
+}
+
+#menu {
+    font-family: "Space Grotesk";
+    position: absolute;
+    width: 35vh;
+    height: 55vh;
+    z-index: 15;
+    border-radius: 20px;
+    border-width: 1px;
+    right: -35vh;
+    top: 50%;
+    transform: translate(0%,-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;   
+    color: #f4f9ff;
+    transition: transform 0.5s;
+}
+#menu::before{
+    margin-right: 6vh;
+}
+
+#menuFooter{
+    width: 100%;
+    height: 4vh;
+    position: fixed;
+    bottom: 1vh;
+    display: flex;
+    justify-content: center;
+    
+}
+
+#menu:active,#menu:hover,#menu:focus {
+    transition: transform 0.5s;
+    transform: translate(-110%,-50%);
+}
+
+h1{
+    font-size: 1.6em;
+    margin-bottom: 0;
+}
+#input-box {
+    font-family: "Computer Modern Serif";
+    width: 90%;
+    height: 3.5vh;
+    font-size: 18px;
+    padding-left: 10px;
+    background: #505c6373;
+    color: #f4f9ff;
+    border-radius: 5px;
+    border: none;
+    border-width: 2px;   
+
+}
+
+#input-box:focus {
+    outline-width: 0;
+    box-shadow: 0px 2px white;
+}
+
+.axisSelector{
+    display: grid;
+    grid-row: 2;
+    width: 90%;
+}
+
+.selector{
+    background: #505c6373;
+    font-family: "Space Grotesk";
+    color: #f4f9ff;
+    border-radius: 5px;
+    border: none;
+    border-width: 2px;   
+}
+
+.selector:focus{
+    outline-width: 0;
+}
+
+.axisInput{
+    font-family: "Computer Modern Serif";
+    width: 10vh;
+    height: 3.5vh;
+    font-size: 18px;
+    padding-left: 10px;
+    background: #505c6373;
+    color: #f4f9ff;
+    border-radius: 5px;
+    border: none;
+    border-width: 2px;
+    margin: 3px;
+}
+
+.axisInput:focus {
+    outline-width: 0;
+    box-shadow: 0px 2px white;
+}
+
+#axisInputContainer{
+    margin-top: 0vh;
+}
+
+.axisLabel{
+    position: relative;
+    margin: 0;
+    padding: 0;
+    top: 50%;
+    left: -4.2vh;
+    font-size: 0.9em;
+    width: 1vh;
+}
+
+#resetView{
+    font-family: "Space Grotesk";
+    background: #505c6373;
+    color: #f4f9ff;
+    border-radius: 5px;
+    height: 3vh;
+    width: 50%;
+    font-size: 1em;
+    margin-top: 2vh;
+    border: none;
+}
+
+#resetView:active{
+    border: 2px inset gray; 
 }

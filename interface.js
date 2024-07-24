@@ -8,7 +8,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function inpUpdate(input) {
   await wgraph.ensureWasmInit();
-  output0.innerHTML = "Lexemes: " + (await wgraph.scanner(input));
+  await wgraph.scanner(input)
+  if (output0){
+  output0.innerText = await wgraph.parse_text(input);
+  }
+
   graph.render();
 }
 

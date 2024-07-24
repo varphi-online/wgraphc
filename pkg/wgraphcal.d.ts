@@ -1,6 +1,26 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+* @param {string} input
+* @returns {string}
+*/
+export function str_to_lexemes(input: string): string;
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function str_to_tokens(input: string): string;
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function str_to_abstract(input: string): string;
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function return_string(input: string): string;
+/**
 * @param {number} x1
 * @param {number} x2
 * @param {number} y1
@@ -21,29 +41,21 @@ export function get_buf_as_ptr(): number;
 * @returns {bigint}
 */
 export function get_resolution(): bigint;
-/**
-* @param {string} input
-* @returns {string}
-*/
-export function str_to_lexemes(input: string): string;
-/**
-* @param {string} input
-* @returns {string}
-*/
-export function return_string(input: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly str_to_lexemes: (a: number, b: number, c: number) => void;
+  readonly str_to_tokens: (a: number, b: number, c: number) => void;
+  readonly str_to_abstract: (a: number, b: number, c: number) => void;
+  readonly return_string: (a: number, b: number, c: number) => void;
   readonly faster_call: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number) => void;
   readonly get_buf_as_ptr: () => number;
   readonly get_resolution: () => number;
-  readonly str_to_lexemes: (a: number, b: number, c: number) => void;
-  readonly return_string: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
 }
 

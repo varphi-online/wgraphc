@@ -4,7 +4,7 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Research and impl. structs to handle tokens, preferablly easily expandible
 - [x] Scanner for lexemes in evaluation.
 - [x] Evaluator to to create tokens to use.
-- [ ] Impliment Recursive Descent Parser or the shunting yard algorithim to
+- [x] Impliment Recursive Descent Parser or the shunting yard algorithim to
       build and AST from tokens.
 - [ ] Global variables and variable assignment, with multiple assignment
 - [ ] Function handling, arbitrary amount of arguments
@@ -14,12 +14,12 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Wasm & Js Rendering using HTML5 canvas, currently thinking rendering with Js
 - [x] Drawing an infinitely resizable and moveble grid, containerized for
       multiple instances in the future
-- [ ] Calculating an output 2d vector array from an input 2d vector array using
+- [x] Calculating an output 2d vector array from an input 2d vector array using
       AST (or other method of function representation) given a range and
       percision determined by the grid's view window in WASM.<sup>1</sup>
 - [x] Rendering a series of points and line from the 2d vector array by only
       graphing the reals
-- [ ] Being able to select the coordinate space of the output for different views
+- [x] Being able to select the coordinate space of the output for different views
 - [ ] Multiple views that move simultaneously of the output data
       (calculate once, render n-times)
 - [ ] Better input, n-many input boxes, all formatted with KaTeX live rendering

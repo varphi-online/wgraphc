@@ -1,5 +1,5 @@
 import init from "./pkg/wgraphcal.js";
-import { faster_call,return_string,get_buf_as_ptr,get_resolution} from "./pkg/wgraphcal.js";
+import { faster_call,return_string,get_buf_as_ptr,get_resolution,str_to_lexemes,str_to_tokens,str_to_abstract} from "./pkg/wgraphcal.js";
 
 export let bufferPointer;
 let wasmInitialized = false;
@@ -32,6 +32,10 @@ export async function scanner(input) {
   return res;
 }
 
+export async function parse_text(input){
+  await ensureWasmInit();
+  return "Lexemes: "+str_to_lexemes(input)+"\nTokens: "+str_to_tokens(input)+"\n AST: "+str_to_abstract(input);
+}
 
 
 export async function squaredvals(bounds,cw,ch,haxis,vaxis,ssc){

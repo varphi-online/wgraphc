@@ -2,60 +2,79 @@
 <html>
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Hello World - Rust</title>
-  <script type="module" src="./index.js"></script>
-  <script type="module" src="./interface.js"></script>
-  <script src="graph.js" type="module"></script>
-  <link rel="stylesheet" href="index.css" />
+    <meta charset="UTF-8" />
+    <title>Complex Web Graph</title>
+    <script type="module" src="./index.js"></script>
+    <script type="module" src="./interface.js"></script>
+    <script src="graph.js" type="module"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+    <link rel="stylesheet" href="index.css" />
 </head>
 
 <body style="overflow: hidden; margin: 0;">
-  <div style="display: flex" class="flex-container">
+    <p id="frameTime">fps</p>
+    <div id="menu">
+        <div id="hiddenHider"></div>
+        <div id="hider"></div>
+        <h1>Complex Web Graph</h1>
+        <p>Function to graph:</p>
+        <input id="input-box" oninput="inpUpdate(this.value);" autocomplete="off" />
+        <p>Axes:</p>
+        <div class="axisSelector">
+            <div style="grid-column: 1;"><label for="haxis">Horizontal Axis:</label></div>
+            <div style="grid-column: 2; justify-self: right;">
 
-    <div id="input" style="height: 100cqh; margin-right: 1px;">
-      <div style="padding: 15px;">
-        <h1>Graphing Calculator</h1>
+                <select class="selector" name="haxis" id="haxis">
+                    <option value="i_r">Real Input</option>
+                    <option value="o_r">Real Output</option>
+                    <option value="i_i">Imaginary Input</option>
+                    <option value="o_i">Imaginary Output</option>
+                </select>
+            </div>
+            <div style="grid-column: 1;">
+                <label for="vaxis">Vertical Axis:</label>
+            </div>
+            <div style="grid-column: 2; justify-self: right;">
+                <select class="selector" name="vaxis" id="vaxis">
 
-        <input id="input-box" oninput="inpUpdate(this.value);" />
+                    <option value="o_r">Real Output</option>
+                    <option value="i_r">Real Input</option>
+                    <option value="o_i">Imaginary Output</option>
+                    <option value="i_i">Imaginary Input</option>
+                </select>
+            </div>
+        </div>
 
-        <p id="out0">Lexemes:</p>
-        <button id="resetView" type="button">Reset View</button>
-        <p id="frameTime"></p>
-        <label for="haxis">Horizontal Axis:</label>
-        <select name="haxis" id="haxis">
-          <option value="i_r">Real Input</option>
-          <option value="o_r">Real Output</option>
-          <option value="i_i">Imaginary Input</option>
-          <option value="o_i">Imaginary Output</option>
-        </select>
-        <br>
-        <label for="vaxis">Vertical Axis:</label>
-        <select name="vaxis" id="vaxis">
-          
-          <option value="o_r">Real Output</option>
-          <option value="i_r">Real Input</option>
-          <option value="o_i">Imaginary Output</option>
-          <option value="i_i">Imaginary Input</option>
-        </select>
-        <br>
-        <label for="cont"> Continuous Approximation</label>
-        <input type="checkbox" id="cont" name="Continuous Approximation" checked="true">
-        
-      </div>
+        <div class="axisSelector" id="axisInputContainer" style="width: 95%;">
+            <div style="grid-column: 1; justify-self: right;">
+                <p class="axisLabel">X<sub>min</sub>:</p><input class="axisInput" id="x1" />
+            </div>
+            <div style="grid-column: 2; justify-self: right;""><p class=" axisLabel">X<sub>max</sub>:</p><input
+                    class="axisInput" id="x2" /></div>
+            <div style="grid-column: 1; justify-self: right;">
+                <p class="axisLabel">Y<sub>min</sub>:</p><input class="axisInput" id="y1" />
+            </div>
+            <div style="grid-column: 2; justify-self: right;""><p class=" axisLabel">Y<sub>max</sub>:</p><input
+                    class="axisInput" id="y2" /></div>
+        </div>
+        <div class="axisSelector" style="margin-top: 2vh;">
+            <label for="cont" style="grid-column: 1; justify-self: center;"> Continuous Approximation</label>
+            <input type="checkbox" id="cont" name="Continuous Approximation" checked="true"
+                style="grid-column: 2; justify-self: left;">
+        </div>
+        <button id="resetView">Reset View</button>
+        <div id="menuFooter">
+            <a href="https://github.com/varphi-online/wgraphc"><img
+                    src="https://cdn.iconscout.com/icon/free/png-256/free-code-280-460136.png?f=webp&w=256"
+                    style="height: 100%;"></a>
+        </div>
     </div>
-    <div class="scale"></div>
-    <div id="scalar"></div>
-    <div class="scale"></div>
-    <div id="canvasContainer">
-      <canvas style="border-left: 1px solid black;
+    </div>
+    <canvas style="
         height: 100vh;
         width: 100%;
-        top: 0;" id="glcanvas"></canvas>
-    </div>
-    <!--<input id="x1" /><input id="x2" /><input id="y1" /><input id="y2" />-->
-  </div>
-  </div>
+        top: 0;" id="canvas"></canvas>
 </body>
 
 </html>

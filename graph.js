@@ -5,6 +5,8 @@ const sizer = document.getElementById("scalar");
 const resetView = document.getElementById("resetView");
 const ft = document.getElementById("frameTime");
 
+const inputs = [document.getElementById("x1"),document.getElementById("x2"),document.getElementById("y1"),document.getElementById("y2")]
+
 let haxis = document.getElementById("haxis");
 let vaxis = document.getElementById("vaxis");
 let horizontal = "i_r"
@@ -14,18 +16,23 @@ async function onChange() {
   vertical = vaxis.value;
   render();
 }
+if (haxis && vaxis){
 haxis.onchange = onChange;
 vaxis.onchange = onChange;
+}
 
 let continuity = document.getElementById("cont");
 let contCheck = true;
-continuity.addEventListener("click", function(){contCheck = !contCheck; render()});
+if (continuity){
+continuity.addEventListener("click", function () { contCheck = !contCheck; render() });
+}
+
 
 
 // Creating a canvas object to contain the element itsself and
 // the info used surrounding
 let canvas = {
-  object: document.getElementById("glcanvas"),
+  object: document.getElementById("canvas"),
   init: function () {
     this.style = getComputedStyle(canvas.object);
     this.width = parseFloat(this.style.getPropertyValue("width"));
@@ -38,9 +45,9 @@ let canvas = {
     canvas.object.height = canvas.height;
     canvas.object.width = canvas.width;
     cnv.font = "15px serif";
-cnv.strokeStyle = "white";
-cnv.lineWidth = 3;
-cnv.textAlign = "center";
+    cnv.strokeStyle = "white";
+    cnv.lineWidth = 3;
+    cnv.textAlign = "center";
   }
 }
 canvas.init();
@@ -71,15 +78,19 @@ let graph = {
         Math.pow(10, Math.floor(Math.log10(graph.width))),
         Math.pow(10, Math.floor(Math.log10(graph.height))),
       ];
+      inputs[0].value = this.bounds[0];
+      inputs[1].value = this.bounds[1];
+      inputs[2].value = this.bounds[2];
+      inputs[3].value = this.bounds[3];
   },
   reset: function () {
     this.zoom = 0;
     this.screenTarget = [0, 0];
     this.zoomLog = 1;
     cnv.font = "15px serif";
-cnv.strokeStyle = "white";
-cnv.lineWidth = 3;
-cnv.textAlign = "center";
+    cnv.strokeStyle = "white";
+    cnv.lineWidth = 3;
+    cnv.textAlign = "center";
   },
   updateBounds: function () {
     let inverseZL = 1 / this.zoomLog;
@@ -93,6 +104,10 @@ cnv.textAlign = "center";
       Math.pow(10, Math.floor(Math.log10(this.width))),
       Math.pow(10, Math.floor(Math.log10(this.height))),
     ];
+    inputs[0].value = this.bounds[0];
+    inputs[1].value = this.bounds[1];
+    inputs[2].value = this.bounds[2];
+    inputs[3].value = this.bounds[3];
   },
   toScreenspace: function (real, imag) {
     let normReal = 1 - ((this.bounds[1] - real) / (this.bounds[1] - this.bounds[0]));
@@ -113,6 +128,20 @@ cnv.textAlign = "center";
 };
 
 graph.init();
+if (inputs){
+  for (let [index, val] of inputs.entries()) {
+    val.oninput = async function(){
+      if( !isNaN(parseFloat(val.value))){
+      graph.initialBounds[index] = parseFloat(val.value);
+      if (!val.value.endsWith(".")){
+      graph.updateBounds();
+      await render();
+      }
+      }
+    };
+  }
+
+}
 render();
 
 async function resize() {
@@ -132,29 +161,32 @@ CanvasRenderingContext2D.prototype.curve = function (h, r, f, c) { r = (typeof r
 
 export async function render() {
   let frameTime = new Date;
-  cnv.clearRect(0, 0, canvas.width, canvas.height);
+  cnv.fillStyle="white";
+  cnv.fillRect(0, 0, canvas.width, canvas.height);
+  cnv.fillStyle ="black";
   grid();
-  let values = await wasm.squaredvals(graph.bounds, canvas.width, canvas.height, horizontal,vertical,true);
+  let values = await wasm.squaredvals(graph.bounds, canvas.width, canvas.height, horizontal, vertical, true);
 
   //drawCurve(cnv,pts);
   let points = [];
   for (let i = 0; i < Math.sqrt(values.length * 1.8); i += 2) {
     points.push(values[i], values[i + 1]);
-    if (!contCheck){
-    cnv.fillRect(points[i] - 1, points[i + 1] - 1, 3, 3);
+    if (!contCheck) {
+      cnv.fillRect(points[i] - 1, points[i + 1] - 1, 3, 3);
     }
   }
-  
+
   if (contCheck) {
-  console.log(points);
-  cnv.strokeStyle = "red";
-  cnv.beginPath();
-  cnv.curve(points);
-  cnv.stroke()
-  cnv.strokeStyle = "white";
+    cnv.strokeStyle = "#3486cf";
+    cnv.beginPath();
+    cnv.curve(points);
+    cnv.stroke()
+    cnv.strokeStyle = "white";
   }
-  ft.innerText = ("Render time: " + (new Date - frameTime) + "ms\n Dots to render:" + Math.round(Math.sqrt(values.length * 1.8)) + "\nZoom: " + 0.5 / graph.zoomLog + "\nScale Factor x: " + graph.scaleFactor[0] + "\nScale Factor y: " + graph.scaleFactor[1] + "\nCanvas width: " + canvas.width + "\nCanvas height: " + canvas.height + "\nBounds: " + graph.bounds.map(val => Math.round(1000 * val) / 1000));
-  
+  if (ft){
+  //ft.innerText = ("Render time: " + (new Date - frameTime) + "ms\n Dots to render:" + Math.round(Math.sqrt(values.length * 1.8)) + "\nZoom: " + 0.5 / graph.zoomLog + "\nScale Factor x: " + graph.scaleFactor[0] + "\nScale Factor y: " + graph.scaleFactor[1] + "\nCanvas width: " + canvas.width + "\nCanvas height: " + canvas.height + "\nBounds: " + graph.bounds.map(val => Math.round(1000 * val) / 1000));
+  ft.innerText = (new Date - frameTime)+"ms"
+  }
 }
 
 function gridline(int) {
@@ -189,8 +221,8 @@ function grid() {
   // so we make a different amount of lines for each to eliminiate draw calls
 
   let text;
-  let xAdd = horizontal.endsWith("i")? "i": "";
-  let yAdd = vertical.endsWith("i")? "i": "";
+  let xAdd = horizontal.endsWith("i") ? "i" : "";
+  let yAdd = vertical.endsWith("i") ? "i" : "";
 
   //Major X lines
   for (let i = -7; i < 8; i++) {
@@ -205,13 +237,13 @@ function grid() {
     text = xScale * i + superFloor(xScale, graph.screenTarget[0]);
     text = precision(text) == 0 ? Math.round(text) : text;
     cnv.strokeText(
-      text+xAdd,
+      text + xAdd,
       xpos[0],
       Math.min(Math.max(xpos[1] + 18, 14), canvas.height - 8),
       150,
     );
     cnv.fillText(
-      text+xAdd,
+      text + xAdd,
       xpos[0],
       Math.min(Math.max(xpos[1] + 18, 14), canvas.height - 8),
       150,
@@ -247,13 +279,13 @@ function grid() {
       cnv.textAlign = "right";
     }
     cnv.strokeText(
-      text+yAdd,
+      text + yAdd,
       Math.min(Math.max(ypos[0] - 15, 10), canvas.width - 10),
       ypos[1] + 4,
       150,
     );
     cnv.fillText(
-      text+yAdd,
+      text + yAdd,
       Math.min(Math.max(ypos[0] - 15, 10), canvas.width - 10),
       ypos[1] + 4,
       150,
@@ -293,7 +325,6 @@ addEventListener("wheel", async function (event) {
   graph.zoomLog = Math.pow(2, graph.zoom);
   graph.updateBounds();
   await render();
-  console.log("zoomed: " + event.deltaY);
 }, { passive: false });
 
 let prevCoords = []
@@ -311,30 +342,37 @@ canvas.object.addEventListener("mousemove", async function (e) {
 });
 
 let sizeMove = false;
+if (sizer){
 sizer.addEventListener("mousedown", function (e) {
   canvas.init();
   sizeMove = true;
 });
+}
 let inpBloc = document.getElementById("input");
+if (inpBloc){
+const minWidth = parseFloat(getComputedStyle(inpBloc).getPropertyValue("width"));
+
 window.addEventListener("mousemove", function (e) {
-  let current_margin = parseFloat(getComputedStyle(inpBloc).getPropertyValue("margin-right"));
-  if (sizeMove && (current_margin >= 0 || e.movementX > 0)) {
+  let current_margin = parseFloat(getComputedStyle(inpBloc).getPropertyValue("width"));
+  if (sizeMove && (current_margin >= minWidth || e.movementX > 0)) {
     canvas.width -= e.movementX;
 
-    inpBloc.style.marginRight = current_margin + e.movementX + "px";
+    inpBloc.style.width = current_margin + e.movementX + "px";
     resize();
   }
 });
+}
 
 window.addEventListener("mouseup", function (e) {
   sizeMove = false;
 });
-
+if (resetView){
 resetView.addEventListener("click", async function () {
   graph.reset();
   graph.updateBounds();
   await render();
   grid();
 });
+}
 //});
 //});

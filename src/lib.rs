@@ -30,7 +30,27 @@ static MAIN_FUNC: Lazy<RwLock<Option<parser::token::Operator>>> = Lazy::new(|| R
 
 #[wasm_bindgen]
 pub fn str_to_lexemes(input: String) -> String {
-    format!("2")
+    format!("{:?}", parser::scanner::scan(input))
+}
+
+#[wasm_bindgen]
+pub fn str_to_tokens(input: String) -> String {
+    format!(
+        "{}",
+        parser::evaluator::analyze(parser::evaluator::evaluate(parser::scanner::scan(input)))
+    )
+}
+
+#[wasm_bindgen]
+pub fn str_to_abstract(input: String) -> String {
+    let tokens =
+        parser::evaluator::analyze(parser::evaluator::evaluate(parser::scanner::scan(input)));
+    format!(
+        "{:?}",
+        parser::ast::AST::default()
+            .from_shunting_yard(tokens)
+            .unwrap()
+    )
 }
 
 #[wasm_bindgen]
