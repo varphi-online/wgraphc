@@ -80,6 +80,8 @@ export class function_text_inputs {
       // On backspace, if the box is empty, destroys itsself after removing
       // itsself from all info arrays and setting focus to previous box
       if (event.key === "Backspace" && elem.value == "") {
+        //TODO: CHECK BOTH LENGTH OF LIST AND DELETION OF FIRST BEFORE
+        // IT IS THE LAST ONE
         if (self.elements.length > 1) {
           let idx = elem.id.replace("funcInput-", "");
           contextMap.delete(idx);

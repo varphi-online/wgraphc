@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <title>Complex Web Graph</title>
-    <script type="module" src="./pkg/index.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+    <link rel="icon" type="image/x-icon" href="./media/Icon256.png">
+    <script type="module" src="./pkg/index.js">
+    </script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
     <link rel="stylesheet" href="index.css" />
 </head>
 
@@ -64,10 +67,10 @@
         </div>
         <p style="margin-top: 2vh; margin-bottom: 0;">Resolution (Performance Hit) :</p>
         <div id="" class="number-input">
-            <button id ="rezDown" onclick="this.parentNode.querySelector('input[type=number]').stepDown()"></button>
+            <button id="rezDown" onclick="this.parentNode.querySelector('input[type=number]').stepDown()"></button>
             <input class="numInp" type="number" step="1" id="resolution" min="1" max="200" value="3"
                 style="grid-column: 2; justify-self: left;">
-            <button id ="rezUp" onclick="this.parentNode.querySelector('input[type=number]').stepUp();"
+            <button id="rezUp" onclick="this.parentNode.querySelector('input[type=number]').stepUp();"
                 class="plus"></button>
         </div>
         <button id="resetView">Reset View</button>
