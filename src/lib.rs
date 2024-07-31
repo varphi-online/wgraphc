@@ -1,5 +1,3 @@
-use once_cell::sync::Lazy;
-use std::sync::RwLock;
 use wasm_bindgen::prelude::*;
 
 pub mod util {
@@ -26,35 +24,8 @@ pub mod util {
 mod graph;
 mod parser;
 
-static MAIN_FUNC: Lazy<RwLock<Option<parser::token::Operator>>> = Lazy::new(|| RwLock::new(None));
-
 #[wasm_bindgen]
-pub fn str_to_lexemes(input: String) -> String {
-    format!("{:?}", parser::scanner::scan(input))
-}
-
-#[wasm_bindgen]
-pub fn str_to_tokens(input: String) -> String {
-    format!(
-        "{}",
-        parser::evaluator::analyze(parser::evaluator::evaluate(parser::scanner::scan(input)))
-    )
-}
-
-#[wasm_bindgen]
-pub fn str_to_abstract(input: String) -> String {
-    let tokens =
-        parser::evaluator::analyze(parser::evaluator::evaluate(parser::scanner::scan(input)));
-    format!(
-        "{:?}",
-        parser::ast::AST::default()
-            .from_shunting_yard(tokens)
-            .unwrap()
-    )
-}
-
-#[wasm_bindgen]
-pub fn return_string(input: String) -> String {
+pub fn parse_text(input: String) -> String {
     let lexemes = parser::scanner::scan(input);
     util::clog!("Lexemes: {:?}", lexemes);
     let tokens = parser::evaluator::evaluate(lexemes);
@@ -65,21 +36,5 @@ pub fn return_string(input: String) -> String {
     let AST = abstract_tree.from_shunting_yard(tokens2.clone());
     util::clog!("AST: {}", abstract_tree.operands);
 
-    update_main_func(AST.clone());
-    format!("{}", tokens2)
-}
-
-fn update_main_func(op: Option<parser::token::Operator>) {
-    if let Ok(mut guard) = MAIN_FUNC.write() {
-        *guard = op;
-        std::mem::drop(guard)
-    }
-}
-
-pub fn get_main_func() -> Option<Option<parser::token::Operator>> {
-    if let Ok(guard) = MAIN_FUNC.read() {
-        Some(guard.clone())
-    } else {
-        None
-    }
+    serde_json::to_string(&AST).unwrap()
 }

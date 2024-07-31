@@ -1,11 +1,12 @@
 use crate::util::*;
 use lazy_static::lazy_static;
 use num_complex::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Index, IndexMut};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Operator {
     pub arity: Arities,
     pub token_type: Token,
@@ -183,7 +184,7 @@ impl fmt::Debug for Operator {
         }
     }
 }
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct OpVec(Vec<Operator>);
 
 impl OpVec {
@@ -267,7 +268,7 @@ impl FromIterator<Operator> for OpVec {
     }
 }
 
-#[derive(Default, Clone, PartialEq, Eq)]
+#[derive(Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Arities {
     #[default]
     BINARY,
@@ -275,7 +276,7 @@ pub enum Arities {
     NULLARY,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Value {
     Op(OpVec),
     Number(Complex64),
@@ -333,7 +334,7 @@ impl fmt::Display for Value {
     }
 }
 
-#[derive(Default, Clone, PartialEq, Hash, Eq)]
+#[derive(Default, Clone, PartialEq, Hash, Eq, Deserialize, Serialize)]
 pub enum Token {
     #[default]
     END,

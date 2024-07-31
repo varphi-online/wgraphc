@@ -1,4 +1,4 @@
-A non-exhaustive checklist on what is needed to complete this project:
+A non-exhaustive checklist on what is needed to complete this project: (OUTDATED)
 
 - [x] Boilerplate JS and WASM interfacing.
 - [x] Research and impl. structs to handle tokens, preferablly easily expandible
@@ -37,6 +37,8 @@ I learn any new paridigms or design patterns that I want/need to impl. I will
 add them here:
 
 - [x] Debug "mode" to only compile console_log!'s when told.
+- [ ] Canvas modification via wasm
+- [ ] canvas compositing and instantiation for each function.
 
 ---
 

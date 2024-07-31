@@ -4,11 +4,8 @@
 <head>
     <meta charset="UTF-8" />
     <title>Complex Web Graph</title>
-    <script type="module" src="./index.js"></script>
-    <script type="module" src="./interface.js"></script>
-    <script src="graph.js" type="module"></script>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
+    <script type="module" src="./pkg/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/fonts.css">
     <link rel="stylesheet" href="index.css" />
 </head>
 
@@ -19,7 +16,9 @@
         <div id="hider"></div>
         <h1>Complex Web Graph</h1>
         <p>Function to graph:</p>
-        <input id="input-box" oninput="inpUpdate(this.value);" autocomplete="off" />
+        <div id="inputs" style="width: 85%;">
+            <input id="main" class="funcInput" oninput="inpUpdate(this.value);" autocomplete="off" />
+        </div>
         <p>Axes:</p>
         <div class="axisSelector">
             <div style="grid-column: 1;"><label for="haxis">Horizontal Axis:</label></div>
@@ -48,20 +47,28 @@
 
         <div class="axisSelector" id="axisInputContainer" style="width: 95%;">
             <div style="grid-column: 1; justify-self: right;">
-                <p class="axisLabel">X<sub>min</sub>:</p><input class="axisInput" id="x1" />
+                <p class="axisLabel">X<sub>min</sub>:</p><input class="axisInput" id="x1" autocomplete="off" />
             </div>
             <div style="grid-column: 2; justify-self: right;""><p class=" axisLabel">X<sub>max</sub>:</p><input
-                    class="axisInput" id="x2" /></div>
+                    class="axisInput" id="x2" autocomplete="off" /></div>
             <div style="grid-column: 1; justify-self: right;">
-                <p class="axisLabel">Y<sub>min</sub>:</p><input class="axisInput" id="y1" />
+                <p class="axisLabel">Y<sub>min</sub>:</p><input class="axisInput" id="y1" autocomplete="off" />
             </div>
             <div style="grid-column: 2; justify-self: right;""><p class=" axisLabel">Y<sub>max</sub>:</p><input
-                    class="axisInput" id="y2" /></div>
+                    class="axisInput" id="y2" autocomplete="off" /></div>
         </div>
         <div class="axisSelector" style="margin-top: 2vh;">
             <label for="cont" style="grid-column: 1; justify-self: center;"> Continuous Approximation</label>
             <input type="checkbox" id="cont" name="Continuous Approximation" checked="true"
                 style="grid-column: 2; justify-self: left;">
+        </div>
+        <p style="margin-top: 2vh; margin-bottom: 0;">Resolution (Performance Hit) :</p>
+        <div id="" class="number-input">
+            <button id ="rezDown" onclick="this.parentNode.querySelector('input[type=number]').stepDown()"></button>
+            <input class="numInp" type="number" step="1" id="resolution" min="1" max="200" value="3"
+                style="grid-column: 2; justify-self: left;">
+            <button id ="rezUp" onclick="this.parentNode.querySelector('input[type=number]').stepUp();"
+                class="plus"></button>
         </div>
         <button id="resetView">Reset View</button>
         <div id="menuFooter">
@@ -70,11 +77,25 @@
                     style="height: 100%;"></a>
         </div>
     </div>
+    <div id="sliders">
+        <div id="hiddenHider2"></div>
+        <div id="hider2"></div>
+        <div>
+            <p style="display: inline-block;">Viewing slice:</p><input class="numInp" type="number" style="width: 7vh;"
+                step="1" id="sliceVal" value="0"
+                oninput="document.getElementById('slice').value = parseFloat(this.value)">
+        </div>
+        <div id="sliceContainer">
+            <input class="numInp" type="number" step="1" id="minSlice" value="-10" oninput="updateRange()">
+            <input type="range" min="-10" max="10" value="0" class="slider" step="0.1" style="flex-grow: 1;" id="slice">
+            <input class="numInp" type="number" step="1" id="maxSlice" value="10" oninput="updateRange()">
+        </div>
     </div>
     <canvas style="
         height: 100vh;
         width: 100%;
-        top: 0;" id="canvas"></canvas>
+        top: 0;
+        z-index: -1;" id="canvas"></canvas>
 </body>
 
 </html>

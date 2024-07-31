@@ -37,6 +37,8 @@ I learn any new paridigms or design patterns that I want/need to impl. I will
 add them here:
 
 - [x] Debug "mode" to only compile console_log!'s when told.
+- [ ] Canvas modification via wasm
+- [ ] canvas compositing and instantiation for each function.
 
 ---
 

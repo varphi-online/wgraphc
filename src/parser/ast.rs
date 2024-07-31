@@ -1,12 +1,13 @@
 use super::token::{Arities, OpVec, Operator, Token};
 use crate::util::clog;
+use serde::{Deserialize, Serialize};
 
 /*
 macro_rules! clog {
     ($($t:tt)*) => {};
 }
 */
-
+#[derive(Serialize, Deserialize)]
 pub struct AST {
     token_stream: OpVec,
     pub operands: OpVec,
