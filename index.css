@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
-@import url();
 
+:root {
+    --midnight: #505c63a5;
+    --midnightX: #505c63a5;
+    --sunset: #e68269ac;
+    --beige: #ECCEAE;
+    --creme:#FBF6E2;
+
+    --crystal: #505c63a5;
+    --sunlight: #f4f9ff;
+  }
 
 #canvas{
     position: absolute;
@@ -45,7 +54,7 @@
     top: 0;
     left: 0;
     border-radius: 5rem  0 0 5rem;
-    background-color:#505c63a5;
+    background-color: var(--midnight);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: -10;
@@ -61,7 +70,7 @@
     border-radius: 20px;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background-color:#505c63a5;
+    background-color: var(--midnight);
     z-index: -10;
     
     margin-right: 6vh;
@@ -105,7 +114,7 @@
     border-radius: 20px;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background-color:#505c63a5; 
+    background-color: var(--midnight); 
     z-index: -10;
     margin-bottom: 6vh;
 }
@@ -161,7 +170,7 @@
     top: 0;
     left: 0;
     border-radius: 5rem  5rem 0 0;
-    background-color:#505c63a5;
+    background-color:var(--midnight);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: -10;
@@ -179,7 +188,7 @@
     appearance: none;
     outline: none;
     opacity: 0.7;
-    background: #d3d3d3;
+    background: var(--sunlight);
     border-radius: 20px;
 }
 
@@ -188,9 +197,9 @@
     appearance: none;
     width: 25px; 
     height: 25px; 
-    background: #505c63; 
+    background: #131842; 
     border-radius: 100px;
-    border: #d3d3d3;
+    border: var(--sunlight);
     border-style: solid;
     border-width: 0.3vh;
     cursor: pointer;
@@ -220,17 +229,13 @@
 }
 
 
-h1{
-    font-size: 1.6em;
-    margin-bottom: 0;
-}
 .funcInput {
     font-family: "Computer Modern Serif";
     width: 100%;
     height: 3.5vh;
     font-size: 18px;
     margin-top: 0.5vh;
-    background: #505c6373;
+    background: var(--midnightX);
     color: #f4f9ff;
     border-radius: 5px;
     border: none;
@@ -250,7 +255,7 @@ h1{
 }
 
 .selector{
-    background: #505c6373;
+    background: var(--midnightX);
     font-family: "Space Grotesk";
     color: #f4f9ff;
     border-radius: 5px;
@@ -268,7 +273,7 @@ h1{
     height: 3.5vh;
     font-size: 18px;
     padding-left: 10px;
-    background: #505c6373;
+    background: var(--midnightX);
     color: #f4f9ff;
     border-radius: 5px;
     border: none;
@@ -297,7 +302,7 @@ h1{
 
 #resetView{
     font-family: "Space Grotesk";
-    background: #505c6373;
+    background: var(--midnightX);
     color: #f4f9ff;
     border-radius: 5px;
     height: 3vh;
@@ -317,7 +322,7 @@ h1{
     height: 2vh !important;
     font-size: 18px !important;
     padding-left: 10px;
-    background: #505c6373;
+    background: var(--midnightX);
     color: #f4f9ff;
     border-radius: 5px;
     border: none !important;
