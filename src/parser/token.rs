@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 use std::ops::{Index, IndexMut};
+use std::str::FromStr;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Operator {
@@ -90,44 +91,40 @@ impl Operator {
             ..Default::default()
         }
     }
-    pub fn eval(&self, variable: Complex64) -> Complex64 {
+
+    fn idx(&self, i: usize) -> Operator {
+        self.values
+            .get_index(i)
+            .expect("Improperly constructed input")
+            .clone()
+    }
+
+    pub fn eval(&self, val: Complex64, map: String) -> Complex64 {
         let error: &str = "Improperly constructed input";
         match self.token_type {
             Token::Num => self.values.get_complex().expect(error),
-            Token::ID => variable,
-            Token::Add => {
-                self.values.get_index(0).expect(error).eval(variable)
-                    + self.values.get_index(1).expect(error).eval(variable)
+            Token::ID => {
+                let varmap = serde_json::from_str::<HashMap<String, String>>(&map).unwrap();
+                if let Some(mapped_var) = varmap.get(&self.symbol) {
+                    Complex64::from_str(mapped_var).unwrap()
+                } else {
+                    val
+                }
             }
-            Token::Sub => {
-                self.values.get_index(0).expect(error).eval(variable)
-                    - self.values.get_index(1).expect(error).eval(variable)
-            }
-            Token::Mult => {
-                self.values.get_index(0).expect(error).eval(variable)
-                    * self.values.get_index(1).expect(error).eval(variable)
-            }
-            Token::Div => {
-                self.values.get_index(0).expect(error).eval(variable)
-                    / self.values.get_index(1).expect(error).eval(variable)
-            }
-            Token::Sqrt => self.values.get_index(0).expect(error).eval(variable).sqrt(),
+            Token::Add => self.idx(0).eval(val, map.clone()) + self.idx(1).eval(val, map),
+            Token::Sub => self.idx(0).eval(val, map.clone()) - self.idx(1).eval(val, map),
+            Token::Mult => self.idx(0).eval(val, map.clone()) * self.idx(1).eval(val, map),
+            Token::Div => self.idx(0).eval(val, map.clone()) / self.idx(1).eval(val, map),
+            Token::Sqrt => self.idx(0).eval(val, map.clone()).sqrt(),
             Token::Pow => self
-                .values
-                .get_index(0)
-                .expect(error)
-                .eval(variable)
-                .powc(self.values.get_index(1).expect(error).eval(variable)),
-            Token::Sin => self.values.get_index(0).expect(error).eval(variable).sin(),
-            Token::Cos => self.values.get_index(0).expect(error).eval(variable).cos(),
-            Token::Tan => self.values.get_index(0).expect(error).eval(variable).tan(),
-            Token::Log => self
-                .values
-                .get_index(0)
-                .expect(error)
-                .eval(variable)
-                .log10(),
-            Token::Ln => self.values.get_index(0).expect(error).eval(variable).ln(),
+                .idx(0)
+                .eval(val, map.clone())
+                .powc(self.idx(1).eval(val, map)),
+            Token::Sin => self.idx(0).eval(val, map).sin(),
+            Token::Cos => self.idx(0).eval(val, map).cos(),
+            Token::Tan => self.idx(0).eval(val, map).tan(),
+            Token::Log => self.idx(0).eval(val, map).log10(),
+            Token::Ln => self.idx(0).eval(val, map).ln(),
             Token::SENTINEL => {
                 clog!("What?");
                 Complex64::new(f64::INFINITY, f64::INFINITY)

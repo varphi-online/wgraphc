@@ -1,5 +1,7 @@
 import { canvasContainer, graphContainer, } from "./graph.js";
 import { function_text_inputs } from "./metaUI.js";
+import { get_wasm_debug } from "./wasm.js";
+export let debug_mode = await get_wasm_debug();
 let canvas = new canvasContainer();
 canvas.init();
 // Initialize the GL context
@@ -12,13 +14,17 @@ mainCanvasContext.textAlign = "center";
 // Initialize global graph obj
 export let graph = new graphContainer(canvas);
 graph.init();
+// Initialize global variable map
+export let var_map = "{}";
+export function set_varmap(map) {
+    var_map = map;
+}
 // Map of offscreen canvases to be drawn to
 let function_array = new Map();
 // Object of inputs to build above map
-let inputs = new function_text_inputs();
-inputs.init(inputs, function_array);
+let inputs = new function_text_inputs(function_array);
 canvas.event_init(canvas, graph);
 export async function render() {
-    await graph.render(canvas, mainCanvasContext, graph, Array.from(function_array.values()));
+    await graph.render(canvas, mainCanvasContext, graph, Array.from(function_array.values()), var_map);
 }
 render();

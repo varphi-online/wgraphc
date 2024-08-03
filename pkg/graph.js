@@ -1,4 +1,4 @@
-import { render } from "./index.js";
+import { render, debug_mode } from "./index.js";
 import { metaUIContainer } from "./metaUI.js";
 import { oscDraw } from "./wasm.js";
 export let metaUI = new metaUIContainer();
@@ -134,7 +134,7 @@ export class graphContainer {
         let normImag = (this.bounds[3] - imag) / (this.bounds[3] - this.bounds[2]);
         return [normReal * canvas.width, normImag * canvas.height];
     }
-    async render(canvas, ctx, graph, offscreens) {
+    async render(canvas, ctx, graph, offscreens, vars) {
         let frameTime = new Date().getTime();
         ctx.fillStyle = "white";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -142,13 +142,14 @@ export class graphContainer {
         this.grid(canvas, ctx, graph);
         if (offscreens) {
             for (let i = 0; i < offscreens.length; i++) {
-                await oscDraw(offscreens[i].context, offscreens[i].serialized_function, offscreens[i].color, canvas, graph, metaUI);
+                await oscDraw(offscreens[i], canvas, graph, metaUI, vars);
                 ctx.drawImage(offscreens[i].object, 0, 0, canvas.width, canvas.height);
             }
         }
         if (metaUI.frame_time) {
+            let debug = debug_mode ? " (Debug)" : "";
             metaUI.frame_time.innerText =
-                String(new Date().getTime() - frameTime) + "ms";
+                String(new Date().getTime() - frameTime) + "ms" + debug;
         }
     }
     //TODO: Fix for user-defined aspect ratios because grid lines are not drawn
@@ -230,6 +231,7 @@ export class proceduralOffscreen {
     context;
     serialized_function;
     color;
+    draw;
     constructor() {
         this.object = new OffscreenCanvas(window.innerWidth, window.innerHeight);
         this.width = window.innerWidth;

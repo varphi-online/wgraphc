@@ -1,4 +1,19 @@
-A non-exhaustive checklist on what is needed to complete this project: (OUTDATED)
+## Complex Web Graph
+
+A tool to visualize and modify functions that act in both the real and complex planes.
+
+TODO:
+
+- Add a complex flag and variables list to the AST object
+- Preprocess AST to be only constants and one input var in graphing stage
+- If an AST has no variables, evaluate down to a value, including a point flag, to not waste calc time
+
+---
+
+<details>
+      <summary>Old (OUTDATED) README.md</summary>
+
+A non-exhaustive checklist on what is needed to complete this project:
 
 - [x] Boilerplate JS and WASM interfacing.
 - [x] Research and impl. structs to handle tokens, preferablly easily expandible
@@ -6,7 +21,7 @@ A non-exhaustive checklist on what is needed to complete this project: (OUTDATED
 - [x] Evaluator to to create tokens to use.
 - [x] Impliment Recursive Descent Parser or the shunting yard algorithim to
       build and AST from tokens.
-- [ ] Global variables and variable assignment, with multiple assignment
+- [xx] Global variables and variable assignment, with multiple assignment
 - [ ] Function handling, arbitrary amount of arguments
 - [x] Complex number input, _i_ operator and basic complex functions via vectors
 - [ ] Complex trig operators, with the mclauren series used as an approximation
@@ -47,3 +62,5 @@ when using functions based on the mclauren series, the center of the graph
 is the a point, and all calculations of surrounding points are passed
 through that in order to cut down on making a new approximating function
 for each entry in the array.
+
+</details>
