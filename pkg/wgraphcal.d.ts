@@ -1,12 +1,9 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {string} input
-* @returns {string}
-*/
-export function parse_text(input: string): string;
-/**
 * @param {OffscreenCanvasRenderingContext2D} ctx
+* @param {string} func
+* @param {string} color
 * @param {number} canvas_pixel_width
 * @param {number} canvas_pixel_height
 * @param {number} x1
@@ -17,21 +14,45 @@ export function parse_text(input: string): string;
 * @param {string} y_axis
 * @param {number} slice
 * @param {bigint} resolution
-* @param {string} func
-* @param {string} color
 * @param {boolean} continuity
+* @param {string} vars
 */
-export function draw_cnv(ctx: OffscreenCanvasRenderingContext2D, canvas_pixel_width: number, canvas_pixel_height: number, x1: number, x2: number, y1: number, y2: number, x_axis: string, y_axis: string, slice: number, resolution: bigint, func: string, color: string, continuity: boolean): void;
+export function draw_cnv(ctx: OffscreenCanvasRenderingContext2D, func: string, color: string, canvas_pixel_width: number, canvas_pixel_height: number, x1: number, x2: number, y1: number, y2: number, x_axis: string, y_axis: string, slice: number, resolution: bigint, continuity: boolean, vars: string): void;
+/**
+* @param {string} key
+* @param {string} value
+* @param {string} map
+* @returns {string}
+*/
+export function set_var(key: string, value: string, map: string): string;
+/**
+* @param {string} key
+* @param {string} map
+* @returns {string}
+*/
+export function del_var(key: string, map: string): string;
+/**
+* @returns {boolean}
+*/
+export function debug(): boolean;
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function parse_text(input: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly draw_cnv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number, s: number, t: number) => void;
+  readonly set_var: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly del_var: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly debug: () => number;
   readonly parse_text: (a: number, b: number, c: number) => void;
-  readonly draw_cnv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number) => void;
-  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
 }
 

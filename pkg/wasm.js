@@ -1,4 +1,4 @@
-import init, { draw_cnv, parse_text } from "../pkg/wgraphcal.js";
+import init, { draw_cnv, parse_text, set_var, del_var, debug, } from "../pkg/wgraphcal.js";
 let initialized = false;
 async function enssureWASMInit() {
     if (!initialized) {
@@ -6,13 +6,26 @@ async function enssureWASMInit() {
         initialized = true;
     }
 }
+export async function get_wasm_debug() {
+    await enssureWASMInit();
+    return await debug();
+}
 export async function parse_string(string) {
     await enssureWASMInit();
     return await parse_text(string);
 }
-export async function oscDraw(offscreenCanvas, func, color, canvas, graph, ui) {
+export async function set_variable(key, val, map) {
+    return await set_var(key, val, map);
+}
+export async function del_variable(key, map) {
+    return await del_var(key, map);
+}
+export async function oscDraw(ctx, canvas, graph, ui, vars) {
     await enssureWASMInit();
-    //TODO: Replace some function inputs pretaining to fields in a
-    // proceduralOffscreen into one and calling them from inside
-    await draw_cnv(offscreenCanvas, canvas.width, canvas.height, graph.bounds[0], graph.bounds[1], graph.bounds[2], graph.bounds[3], ui.horizontal_axis, ui.vertical_axis, ui.slice, BigInt(ui.resolution), func, color, ui.continuity);
+    if (ctx.draw) {
+        await draw_cnv(ctx.context, ctx.serialized_function, ctx.color, canvas.width, canvas.height, graph.bounds[0], graph.bounds[1], graph.bounds[2], graph.bounds[3], ui.horizontal_axis, ui.vertical_axis, ui.slice, BigInt(ui.resolution), ui.continuity, vars);
+    }
+    else {
+        ctx.context.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }

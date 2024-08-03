@@ -1,81 +1,222 @@
-import { graph, mainCanvasContext, render } from "./index.js";
+import { graph, mainCanvasContext, render, var_map, set_varmap, } from "./index.js";
 import { proceduralOffscreen } from "./graph.js";
-import { parse_string } from "./wasm.js";
-export class function_text_inputs {
-    elements;
-    element_ids;
+import { parse_string, set_variable, del_variable } from "./wasm.js";
+class function_box {
+    /*
+    A function box object describes a div xontaining the textual input field
+    in HTML, optionally a slider input the offscreen context attached to it,
+    and a few other attributes useful in working with the data stored in
+    itsself.
+
+    On "Enter", the function box creates a new input box with its own constructor
+    and on "Backspace" deletes itsself, all mappings/references to itsself and
+    moves the user's cursor focus to the input box directly above.
+
+    If a box contains a variable declaration (i.e. <variableName>=<number>) it
+    will show a slider element to allow for ease of variable changing, and
+    will hide said slider if the declaration is invalid/non-exisent
+
+    This also acts as a node in a reverse linked list for easy access of the previous
+    */
     container;
-    id_incr;
-    constructor() {
-        this.id_incr = 0;
-        this.elements = Array.from(document.getElementsByClassName("funcInput"));
-        this.container = document.getElementById("inputs");
-        this.element_ids = new Map();
+    text_box;
+    slider_container;
+    slider;
+    slider_min;
+    slider_max;
+    // Keeps track of if a var decl. is in progress to not reset slider
+    decl_flag;
+    offscreen;
+    index;
+    variable_name;
+    mapped_var_name;
+    variable_value;
+    variable_imag;
+    parent;
+    context_map;
+    next;
+    previous;
+    constructor(parent, contextMap) {
+        // Create the DOM elements that define this object
+        // Index will be relative to place in containing array
+        this.context_map = contextMap;
+        this.parent = parent;
+        this.index = this.parent.function_boxes.length;
+        this.offscreen = new proceduralOffscreen();
+        contextMap.set(this.index, this.offscreen);
+        this.initialize_DOM();
+        this.variable_name = "";
+        this.variable_value = 0;
+        this.variable_imag = false;
+        this.initialize_Inputs();
+        this.parent.function_boxes.push(this);
     }
-    init(self, contextMap) {
-        for (let [index, element] of this.elements.entries()) {
-            let id_increment = JSON.stringify(this.id_incr);
-            this.element_ids.set(element.id, this.elements.length - 1);
-            contextMap.set(id_increment, new proceduralOffscreen());
-            let initial = contextMap.get(id_increment);
-            if (initial) {
-                initial.color = "blue";
+    initialize_DOM() {
+        // Prodceedurally create an element from some key info and cast back to type
+        const createElement = (tag, classes, id_suffix, input_type) => {
+            let element = document.createElement(tag);
+            element.id = "function_box_" + id_suffix + "-" + String(this.index);
+            classes.unshift(id_suffix);
+            element.className = "function_box_" + classes.join(" ");
+            if (element instanceof HTMLInputElement) {
+                if (input_type == "range") {
+                    element.type = input_type;
+                    element.min = "-10";
+                    element.max = "10";
+                }
+                element.autocomplete = "off";
             }
-            this.attach_oninput(element, contextMap, id_increment);
-            this.attach_event_listener(element, self, contextMap);
-            this.increment_id();
-        }
-    }
-    increment_id() {
-        this.id_incr++;
-    }
-    // Unique oninput for each function allows for different ones to be drawn
-    attach_oninput(elem, contextMap, id) {
-        elem.oninput = async function () {
-            let context = contextMap.get(id);
-            if (context) {
-                context.serialized_function = await parse_string(elem.value);
-            }
-            await render();
+            return element;
         };
+        let container = createElement("div", [], "container", null);
+        let input = (createElement("input", ["function_box_text_input"], "input", null));
+        // The slider is hidden by default and only is visible with a var decl.
+        let slider_container = (createElement("div", [], "slider_container", null));
+        slider_container.style.display = "none";
+        let slider = (createElement("input", [], "slider", "range"));
+        let slider_min = (createElement("input", ["function_box_slider_input", "function_box_input", "left"], "slider_min", null));
+        let slider_max = (createElement("input", ["function_box_slider_input", "function_box_input", "right"], "slider_max", null));
+        slider_container.appendChild(slider_min);
+        slider_container.appendChild(slider);
+        slider_container.appendChild(slider_max);
+        container.appendChild(input);
+        container.appendChild(slider_container);
+        this.container = container;
+        this.text_box = input;
+        this.slider_container = slider_container;
+        this.slider = slider;
+        this.slider_min = slider_min;
+        this.slider_max = slider_max;
     }
-    attach_event_listener(elem, self, contextMap) {
-        // On enter, creates a new input element with it's own offscreen canvas
-        // and appropriately updates the arrays including it
-        elem.addEventListener("keydown", (event) => {
-            if (event.key === "Enter") {
-                let id_increment = JSON.stringify(self.id_incr);
-                let new_input_box = document.createElement("input");
-                contextMap.set(id_increment, new proceduralOffscreen());
-                self.attach_event_listener(new_input_box, self, contextMap);
-                new_input_box.className = "funcInput";
-                new_input_box.id = "funcInput-" + parseInt(id_increment);
-                self.container.appendChild(new_input_box);
-                self.elements.push(new_input_box);
-                self.element_ids.set(new_input_box.id, self.elements.length - 1);
-                this.attach_oninput(new_input_box, contextMap, id_increment);
-                new_input_box.focus();
-                self.increment_id();
-            }
-            // On backspace, if the box is empty, destroys itsself after removing
-            // itsself from all info arrays and setting focus to previous box
-            if (event.key === "Backspace" && elem.value == "") {
-                if (self.elements.length > 1) {
-                    let idx = elem.id.replace("funcInput-", "");
-                    contextMap.delete(idx);
-                    let index_of_remove = self.element_ids.get(elem.id);
-                    self.element_ids.delete(elem.id);
-                    let to_remove = document.getElementById(elem.id);
-                    if (to_remove) {
-                        self.container.removeChild(to_remove);
+    initialize_Inputs() {
+        let self = this;
+        // Primary textual input
+        this.text_box.oninput = async function () {
+            [self.variable_name, self.variable_value, self.variable_imag] =
+                await self.handle_string(self.text_box.value, self.offscreen);
+            if (self.variable_name != "") {
+                self.mapped_var_name = self.variable_name;
+                // We don't want to waste extra time drawing to the screen if
+                // the box declares a var
+                self.offscreen.draw = false;
+                self.slider_container.style.display = "flex";
+                if (!self.decl_flag) {
+                    self.slider_min.value = String(self.variable_value - 10);
+                    self.slider.min = String(self.variable_value - 10);
+                    self.slider_max.value = String(self.variable_value + 10);
+                    self.slider.max = String(self.variable_value + 10);
+                    self.slider.value = String(self.variable_value);
+                    self.slider.step = String(self.variable_value / 200);
+                } // Handles changing of the value if the slider has been used
+                else {
+                    // Specific cases where variable set is out of defined range
+                    let value = String(self.variable_value);
+                    if (parseFloat(self.slider_min.value) > self.variable_value) {
+                        self.slider_min.value = value;
+                        self.slider.min = value;
+                        self.slider.value = value;
+                        self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) /
+                            2 /
+                            200);
                     }
-                    if (index_of_remove) {
-                        self.elements[index_of_remove - 1].focus();
-                        self.elements.splice(index_of_remove, 1);
+                    else if (parseFloat(self.slider_max.value) < self.variable_value) {
+                        self.slider_max.value = value;
+                        self.slider.max = value;
+                        self.slider.value = value;
+                        self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) /
+                            2 /
+                            200);
+                    }
+                    else {
+                        self.slider.value = String(self.variable_value);
                     }
                 }
             }
+            else {
+                self.slider_container.style.display = "none";
+                self.offscreen.draw = true;
+            }
+            await render();
+        };
+        // Handles specifically the key pressing of Enter and Backspace
+        this.text_box.addEventListener("keydown", async (event) => {
+            // On Enter, creates a new input element with it's own offscreen canvas
+            if (event.key === "Enter") {
+                let new_function_box = new function_box(self.parent, self.context_map);
+                // Update internal linked list
+                new_function_box.previous = self;
+                self.next = new_function_box;
+                self.container.insertAdjacentElement("afterend", new_function_box.container);
+                new_function_box.text_box.focus();
+            }
+            // On Backspace, if the box is empty, destroys itsself after removing
+            // itsself from all info arrays and setting focus to previous box
+            else if (event.key === "Backspace" &&
+                self.text_box.value == "" &&
+                self.previous) {
+                // Update mappings
+                self.context_map.delete(self.index);
+                set_varmap(await del_variable(self.mapped_var_name, var_map));
+                self.previous.text_box.focus();
+                self.previous.next = self.next;
+                self.parent.container.removeChild(self.container);
+            }
         });
+        // Slider changes will be reflected in the varmap and the sister text-box
+        this.slider.oninput = async function () {
+            self.decl_flag = true;
+            self.variable_value = parseFloat(self.slider.value);
+            set_varmap(await set_variable(self.variable_name, String(self.variable_value), var_map));
+            self.text_box.value =
+                self.variable_name + "=" + String(self.variable_value);
+            await render();
+        };
+        // Update slider bounds and step on input
+        this.slider_min.oninput = async function () {
+            self.slider.min = self.slider_min.value;
+            self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) / 2 / 200);
+        };
+        this.slider_max.oninput = async function () {
+            self.slider.max = self.slider_max.value;
+            self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) / 2 / 200);
+        };
+    }
+    async handle_string(value, context) {
+        // Check if valid variable assignment, else, try to parse as expression
+        if (value.includes("=")) {
+            let split = value.split("=", 2);
+            if (/([a-zA-Z]+)(_({(\w*(})?)?)?)?$/gy.test(split[0]) &&
+                /(\d)+(\.)?(\d)*[i]?$/gy.test(split[1])) {
+                set_varmap(await set_variable(split[0], split[1], var_map));
+                context.serialized_function = "";
+                if (split[1].endsWith("i")) {
+                    return [split[0], parseFloat(split[1].slice(0, -1)), true];
+                }
+                else {
+                    return [split[0], parseFloat(split[1]), false];
+                }
+            }
+            else {
+                console.error("Invalid variable assignment");
+            }
+        }
+        else {
+            context.serialized_function = await parse_string(value);
+        }
+        return ["", 0, false];
+    }
+}
+export class function_text_inputs {
+    function_boxes;
+    container;
+    context_map;
+    constructor(map) {
+        this.function_boxes = [];
+        this.container = document.getElementById("inputs");
+        this.context_map = map;
+        let first_box = new function_box(this, map);
+        this.function_boxes.push(first_box);
+        this.container.appendChild(this.function_boxes[0].container);
     }
 }
 export class metaUIContainer {

@@ -1,8 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
-@import url();
 
+:root {
+    --midnight: #505c63a5;
+    --midnightX: #505c63a5;
+    --sunset: #e68269ac;
+    --beige: #ECCEAE;
+    --creme: #FBF6E2;
 
-#canvas{
+    --crystal: #505c63a5;
+    --sunlight: #f4f9ff;
+}
+
+#canvas {
     position: absolute;
     left: 0;
     top: 0;
@@ -11,47 +20,49 @@
     z-index: -1;
 }
 
-#frameTime{
+#frameTime {
     font-family: "Space Grotesk";
     font-size: .8em;
     position: absolute;
-    top:0;
+    top: 0;
     padding-left: 4px;
     margin: 0;
 }
 
 #hider {
-    position:fixed;
+    position: fixed;
     height: 5vh;
     width: 2.6vh;
     left: -2.5vh;
     top: 50%;
     transform: translateY(-50%);
-    
+
 }
-#hiddenHider{
+
+#hiddenHider {
     position: fixed;
     height: 80vh;
     top: -10vh;
     width: 170%;
     z-index: -30;
 }
-#hider::before{
-    
+
+#hider::before {
+
     content: '';
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    border-radius: 5rem  0 0 5rem;
-    background-color:#505c63a5;
+    border-radius: 5rem 0 0 5rem;
+    background-color: var(--midnight);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: -10;
 }
 
-#menu::before{
+#menu::before {
     content: '';
     position: absolute;
     width: 100%;
@@ -63,7 +74,7 @@
     backdrop-filter: blur(10px);
     background-color:#505c63a5;
     z-index: -10;
-    
+
     margin-right: 6vh;
 }
 
@@ -77,25 +88,27 @@
     border-width: 1px;
     right: -35vh;
     top: 50%;
-    transform: translate(0%,-50%);
+    transform: translate(0%, -50%);
     display: flex;
     flex-direction: column;
-    align-items: center;   
+    align-items: center;
     color: #f4f9ff;
     transition: transform 0.5s;
 }
 
-#menu:active,#menu:hover,#menu:focus {
+#menu:active,
+#menu:hover,
+#menu:focus {
     transition: transform 0.5s;
-    transform: translate(-110%,-50%);
+    transform: translate(-110%, -50%);
 }
 
-#menu:focus-within{
-    transform: translate(-110%,-50%);
+#menu:focus-within {
+    transform: translate(-110%, -50%);
 }
 
 
-#sliders::before{
+#sliders::before {
     content: '';
     position: absolute;
     width: 100%;
@@ -105,7 +118,7 @@
     border-radius: 20px;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background-color:#505c63a5; 
+    background-color: var(--midnight);
     z-index: -10;
     margin-bottom: 6vh;
 }
@@ -120,61 +133,65 @@
     border-width: 1px;
     left: 50%;
     bottom: -14vh;
-    transform: translate(-50%,0%);
+    transform: translate(-50%, 0%);
     display: flex;
     flex-direction: column;
-    align-items: center;   
+    align-items: center;
     justify-content: center;
     color: #f4f9ff;
     transition: transform 0.5s;
 }
 
-#sliders:active,#sliders:hover,#sliders:focus {
+#sliders:active,
+#sliders:hover,
+#sliders:focus {
     transition: transform 0.5s;
-    transform: translate(-50%,-17vh);
+    transform: translate(-50%, -17vh);
 }
 
-#sliders:focus-within{
-    transform: translate(-50%,-17vh);
+#sliders:focus-within {
+    transform: translate(-50%, -17vh);
 }
 
 #hider2 {
-    position:fixed;
-    width:  5vh;
+    position: fixed;
+    width: 5vh;
     height: 2.6vh;
     top: -2.42vh;
     left: 50%;
     transform: translateX(-50%);
 }
-#hiddenHider2{
+
+#hiddenHider2 {
     position: fixed;
     height: 145%;
     top: -3vh;
     width: 80vw;
     z-index: -30;
 }
-#hider2::before{
+
+#hider2::before {
     content: '';
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
-    border-radius: 5rem  5rem 0 0;
-    background-color:#505c63a5;
+    border-radius: 5rem 5rem 0 0;
+    background-color: var(--midnight);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     z-index: -10;
 }
 
-#sliceContainer{
+#sliceContainer {
     display: flex;
     flex-direction: row;
     align-items: center;
     width: 90%;
 }
 
-#slice{
+#slice {
     height: 0.2vh;
     appearance: none;
     outline: none;
@@ -184,29 +201,29 @@
 }
 
 #slice::-webkit-slider-thumb {
-    -webkit-appearance: none; 
+    -webkit-appearance: none;
     appearance: none;
-    width: 25px; 
-    height: 25px; 
-    background: #505c63; 
+    width: 25px;
+    height: 25px;
+    background: #131842;
     border-radius: 100px;
     border: #d3d3d3;
     border-style: solid;
     border-width: 0.3vh;
     cursor: pointer;
-  }
-  
-  #slice::-moz-range-thumb {
+}
+
+#slice::-moz-range-thumb {
     appearance: none;
-    width: 25px; 
-    height: 25px; 
-    background: #505c63; 
+    width: 25px;
+    height: 25px;
+    background: #505c63;
     border-radius: 100px;
     border: #d3d3d3;
     border-style: solid;
     border-width: 0.3vh;
     cursor: pointer;
-  }
+}
 
 #menuFooter {
     width: 100%;
@@ -234,8 +251,7 @@ h1{
     color: #f4f9ff;
     border-radius: 5px;
     border: none;
-    border-width: 2px;   
-
+    border-width: 2px;
 }
 
 .funcInput:focus {
@@ -243,26 +259,26 @@ h1{
     box-shadow: 0px 2px white;
 }
 
-.axisSelector{
+.axisSelector {
     display: grid;
     grid-row: 2;
     width: 90%;
 }
 
-.selector{
-    background: #505c6373;
+.selector {
+    background: var(--midnightX);
     font-family: "Space Grotesk";
     color: #f4f9ff;
     border-radius: 5px;
     border: none;
-    border-width: 2px;   
+    border-width: 2px;
 }
 
-.selector:focus{
+.selector:focus {
     outline-width: 0;
 }
 
-.axisInput{
+.axisInput {
     font-family: "Computer Modern Serif";
     width: 10vh;
     height: 3.5vh;
@@ -281,11 +297,11 @@ h1{
     box-shadow: 0px 2px white;
 }
 
-#axisInputContainer{
+#axisInputContainer {
     margin-top: 0vh;
 }
 
-.axisLabel{
+.axisLabel {
     position: relative;
     margin: 0;
     padding: 0;
@@ -295,7 +311,7 @@ h1{
     width: 1vh;
 }
 
-#resetView{
+#resetView {
     font-family: "Space Grotesk";
     background: #505c6373;
     color: #f4f9ff;
@@ -307,13 +323,13 @@ h1{
     border: none;
 }
 
-#resetView:active{
-    border: 2px inset gray; 
+#resetView:active {
+    border: 2px inset gray;
 }
 
-.numInp{
+.numInp {
     font-family: "Computer Modern Serif" !important;
-    width: 5vh; 
+    width: 5vh;
     height: 2vh !important;
     font-size: 18px !important;
     padding-left: 10px;
@@ -328,14 +344,16 @@ h1{
 
 input[type="number"] {
     -webkit-appearance: textfield;
-       -moz-appearance: textfield;
-            appearance: textfield;
-  }
-  input[type=number]::-webkit-inner-spin-button, 
-  input[type=number]::-webkit-outer-spin-button { 
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
-  }
-  .numInp:focus {
+}
+
+.numInp:focus {
     outline-width: 0;
     box-shadow: 0px 2px white;
 }
@@ -346,15 +364,15 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     margin-top: 0;
-  }
-  
-  .number-input,
-  .number-input * {
+}
+
+.number-input,
+.number-input * {
     box-sizing: border-box;
-  }
-  
-  .number-input button {
-    outline:none;
+}
+
+.number-input button {
+    outline: none;
     background-color: transparent;
     border: none;
     align-items: center;
@@ -364,10 +382,10 @@ input[type="number"] {
     cursor: pointer;
     margin: 0;
     position: relative;
-  }
-  
-  .number-input button:before,
-  .number-input button:after {
+}
+
+.number-input button:before,
+.number-input button:after {
     display: inline-block;
     position: absolute;
     content: '';
@@ -375,12 +393,13 @@ input[type="number"] {
     height: 2px;
     background-color: #f4f9ff;
     transform: translate(-50%, -50%);
-  }
-  .number-input button.plus:after {
+}
+
+.number-input button.plus:after {
     transform: translate(-50%, -50%) rotate(90deg);
-  }
-  
-  .number-input input[type=number] {
+}
+
+.number-input input[type=number] {
     font-family: "Space Grotesk";
     max-width: 5rem;
     padding: .5rem;
@@ -389,4 +408,108 @@ input[type="number"] {
     font-size: 2rem;
     height: 3rem;
     text-align: center;
-  }
+}
+
+
+/*--------------------------------------------------------------*/
+
+#inputs{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-content: center;
+    --gap: 6px;
+    gap: var(--gap);
+}
+
+.function_box_container {
+    width: 90%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+}
+
+.function_box_text_input {
+    font-family: "Computer Modern Serif";
+    width: 100%;
+    height: 3.5vh;
+    font-size: 18px;
+    background: var(--midnightX);
+    color: #f4f9ff;
+    border-radius: 5px;
+    border: none;
+    border-width: 2px;
+    padding: none;
+}
+
+.function_box_input:focus {
+    outline-width: 0;
+    box-shadow: 0px 2px white;
+}
+
+.function_box_slider_container {
+    width: 100%;
+    display: flex;
+}
+
+.function_box_slider{
+    appearance: none;
+    outline: none;
+    flex-grow: 1;
+    width: 100%;
+
+    background: var(--sunlight);
+    height: 3px;
+    opacity: 0.7;
+    border-radius: 20px;
+    transform-origin: 50%;
+    transform: translateY(1cqh);
+}
+
+.function_box_slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #131842;
+    border-radius: 100px;
+    border: var(--sunlight);
+    border-style: solid;
+    border-width: 0.3vh;
+    cursor: pointer;
+}
+
+.function_box_slider::-moz-range-thumb {
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #505c63;
+    border-radius: 100px;
+    border: #d3d3d3;
+    border-style: solid;
+    border-width: 0.3vh;
+    cursor: pointer;
+}
+
+.function_box_slider_input{
+    font-family: "Computer Modern Serif" ;
+    width: 5vh;
+    height: 2vh ;
+    font-size: 18px ;
+    background: var(--midnightX);
+    color: #f4f9ff;
+    border-radius: 5px;
+    border: none ;
+    border-width: 2px ;
+    text-align: center ;
+    margin: 3px;
+}
+
+.function_box_slider_input.left{
+    justify-self: left;
+}
+
+.function_box_slider_input.right{
+    justify-self: right;
+}

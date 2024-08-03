@@ -25,6 +25,11 @@ mod graph;
 mod parser;
 
 #[wasm_bindgen]
+pub fn debug() -> bool {
+    cfg!(debug_assertions)
+}
+
+#[wasm_bindgen]
 pub fn parse_text(input: String) -> String {
     let lexemes = parser::scanner::scan(input);
     util::clog!("Lexemes: {:?}", lexemes);

@@ -9,6 +9,8 @@ const GRAPH_RESOLUTION: i64 = 40;
 #[allow(clippy::too_many_arguments)]
 pub fn draw_cnv(
     ctx: &OffscreenCanvasRenderingContext2d,
+    func: String,
+    color: String,
     canvas_pixel_width: f64,
     canvas_pixel_height: f64,
     x1: f64,
@@ -19,9 +21,8 @@ pub fn draw_cnv(
     y_axis: String,
     slice: f64,
     resolution: i64,
-    func: String,
-    color: String,
     continuity: bool,
+    vars: String,
 ) {
     ctx.clear_rect(0.0, 0.0, canvas_pixel_width, canvas_pixel_height);
     let graph_width: f64 = x2 - x1;
@@ -48,7 +49,7 @@ pub fn draw_cnv(
     let apply_transformation = |inp1: f64, inp2: f64| -> (f64, f64) {
         if let Some(value) = ast.clone() {
             let num = Complex64::new(inp1, inp2);
-            let calc = value.eval(num);
+            let calc = value.eval(num, vars.clone());
             return (calc.re, calc.im);
         }
         (f64::INFINITY, f64::INFINITY)
