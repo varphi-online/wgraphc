@@ -46,6 +46,7 @@ class function_box {
         contextMap.set(this.index, this.offscreen);
         this.initialize_DOM();
         this.variable_name = "";
+        this.mapped_var_name = "";
         this.variable_value = 0;
         this.variable_imag = false;
         this.initialize_Inputs();
