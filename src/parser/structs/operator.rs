@@ -35,6 +35,7 @@ impl Operator {
             ..Default::default()
         }
     }
+
     pub fn from_token(type_of_token: Token) -> Operator {
         let arity: Arities = match type_of_token {
             Token::END | Token::SENTINEL | Token::Null | Token::OpenPar | Token::ClosePar => {
@@ -91,8 +92,6 @@ impl Operator {
         }
     }
 
-
-
     fn idx(&self, i: usize) -> Operator {
         self.values
             .get_index(i)
@@ -131,6 +130,37 @@ impl Operator {
                 Complex64::new(f64::INFINITY, f64::INFINITY)
             }
             _ => panic!("{}", error),
+        }
+    }
+
+    pub fn flatten(&self, map: HashMap<String,String>) -> Operator{
+        /*
+        Removes unnessecary reads of pre-defined variables by flattening all
+        constants into a num-type instead of ID type.
+        */
+        match self.token_type {
+            Token::ID => {
+                if let Some(mapped_var) = map.get(&self.symbol) {
+                    let num = Value::Number(Complex64::from_str(mapped_var).unwrap());
+                    let mut out = Operator::from_token(Token::Num);
+                    out.values = num;
+                    out
+                } else {
+                    self.clone()
+                }
+            },
+            _ => match self.arity {
+                Arities::BINARY => {
+                    self.values.get_index(0).unwrap().flatten(map.clone());
+                    self.values.get_index(1).unwrap().flatten(map);
+                    self.clone()
+                },
+                Arities::UNARY => {
+                    self.values.get_index(0).unwrap().flatten(map);
+                    self.clone()
+                },
+                _ => self.clone(),
+            }
         }
     }
 }

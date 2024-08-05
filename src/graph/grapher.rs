@@ -1,4 +1,4 @@
-use super::super::parser::structs::operator::Operator;
+use super::super::parser::structs::{operator::Operator,function::Function};
 use num_complex::*;
 use wasm_bindgen::prelude::*;
 use web_sys::OffscreenCanvasRenderingContext2d;
@@ -28,15 +28,17 @@ pub fn draw_cnv(
     let graph_width: f64 = x2 - x1;
     let graph_height: f64 = y2 - y1;
 
-    // Calculate the "Scale factor" of the graph in the x/y direction
-    // this allows to plot points stabilly as each point will be exactly
-    // one sfx unit from the previous, starting from the leftmost unit who is
-    // closest to the graph's lower boundary in that direction.
-    //
-    // Because we round to the largest power of two that should be displayed,
-    // it is inevitable that extra calculation occurs when nearing the next
-    // closest power of two, so a refactoring should take place that limits
-    // the calculation of out of bound points.
+    /*
+    Calculate the "Scale factor" of the graph in the x/y direction
+    this allows to plot points stabilly as each point will be exactly
+    one sfx unit from the previous, starting from the leftmost unit who is
+    closest to the graph's lower boundary in that direction.
+
+    Because we round to the largest power of two that should be displayed,
+    it is inevitable that extra calculation occurs when nearing the next
+    closest power of two, so a refactoring should take place that limits
+    the calculation of out of bound points.
+    */
     let sfx = (2.0f64).powf(graph_width.log2().floor())
         / ((resolution as f64 * GRAPH_RESOLUTION as f64) / 2.0);
     let low_x_snap_bound = (x1 / sfx).floor() * sfx;
@@ -55,9 +57,11 @@ pub fn draw_cnv(
         (f64::INFINITY, f64::INFINITY)
     };
 
-    // Remaps real and imaginary x,y coordinates to their pixel location
-    // in screenspace, first by normalizing the coordinates to their pos
-    // within the view bounds and then multiplying by the canvas pixel sizes
+    /*
+    Remaps real and imaginary x,y coordinates to their pixel location
+    in screenspace, first by normalizing the coordinates to their pos
+    within the view bounds and then multiplying by the canvas pixel sizes
+    */
     let to_screenspace = |x: f64, y: f64| -> [f64; 2] {
         let normalized_horizontal = 1.0 - (x2 - x) / (graph_width);
         let normalized_vertical = (y2 - y) / (graph_height);
@@ -115,8 +119,10 @@ pub fn draw_cnv(
         }
     }
     if continuity {
-        //TODO: Fix bug with the start and end of a quadratic curve and the
-        // imaginary input where the loop seems to close over the vector
+        /*
+        TODO: Fix bug with the start and end of a quadratic curve and the
+        imaginary input where the loop seems to close over the vector
+        */
         ctx.set_stroke_style(&JsValue::from_str(color.as_str()));
         ctx.set_line_width(2.0);
 

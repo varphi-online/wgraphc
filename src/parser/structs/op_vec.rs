@@ -25,6 +25,9 @@ impl OpVec {
     pub fn set(&mut self, index: usize, value: Operator){
         self.0[index] = value
     }
+    pub fn is_empty(&self)-> bool{
+        self.0.is_empty()
+    }
     //pub fn get_mut(&mut self, index: usize) -> Option<&mut Operator> {
     //    self.0.get_mut(index)
     //}
@@ -56,6 +59,7 @@ impl fmt::Display for OpVec {
         write!(f, "{}", out)
     }
 }
+
 
 impl Index<usize> for OpVec {
     type Output = Operator;

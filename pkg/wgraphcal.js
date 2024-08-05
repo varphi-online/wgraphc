@@ -47,14 +47,6 @@ function takeObject(idx) {
     return ret;
 }
 
-let stack_pointer = 128;
-
-function addBorrowedObject(obj) {
-    if (stack_pointer == 1) throw new Error('out of js stack');
-    heap[--stack_pointer] = obj;
-    return stack_pointer;
-}
-
 let WASM_VECTOR_LEN = 0;
 
 const cachedTextEncoder = (typeof TextEncoder !== 'undefined' ? new TextEncoder('utf-8') : { encode: () => { throw Error('TextEncoder not available') } } );
@@ -110,48 +102,6 @@ function passStringToWasm0(arg, malloc, realloc) {
     WASM_VECTOR_LEN = offset;
     return ptr;
 }
-/**
-* @param {OffscreenCanvasRenderingContext2D} ctx
-* @param {string} func
-* @param {string} color
-* @param {number} canvas_pixel_width
-* @param {number} canvas_pixel_height
-* @param {number} x1
-* @param {number} x2
-* @param {number} y1
-* @param {number} y2
-* @param {string} x_axis
-* @param {string} y_axis
-* @param {number} slice
-* @param {bigint} resolution
-* @param {boolean} continuity
-* @param {string} vars
-*/
-export function draw_cnv(ctx, func, color, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, x_axis, y_axis, slice, resolution, continuity, vars) {
-    try {
-        const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len3 = WASM_VECTOR_LEN;
-        const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len4 = WASM_VECTOR_LEN;
-        wasm.draw_cnv(addBorrowedObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
-    } finally {
-        heap[stack_pointer++] = undefined;
-    }
-}
-
-/**
-* @returns {boolean}
-*/
-export function debug() {
-    const ret = wasm.debug();
-    return ret !== 0;
-}
 
 let cachedInt32Memory0 = null;
 
@@ -161,29 +111,6 @@ function getInt32Memory0() {
     }
     return cachedInt32Memory0;
 }
-/**
-* @param {string} input
-* @returns {string}
-*/
-export function parse_text(input) {
-    let deferred2_0;
-    let deferred2_1;
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.parse_text(retptr, ptr0, len0);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        deferred2_0 = r0;
-        deferred2_1 = r1;
-        return getStringFromWasm0(r0, r1);
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
-    }
-}
-
 /**
 * @param {string} key
 * @param {string} value
@@ -236,6 +163,102 @@ export function del_var(key, map) {
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
+    }
+}
+
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function input_type(input) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.input_type(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        deferred2_0 = r0;
+        deferred2_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+    }
+}
+
+let stack_pointer = 128;
+
+function addBorrowedObject(obj) {
+    if (stack_pointer == 1) throw new Error('out of js stack');
+    heap[--stack_pointer] = obj;
+    return stack_pointer;
+}
+/**
+* @param {OffscreenCanvasRenderingContext2D} ctx
+* @param {string} func
+* @param {string} color
+* @param {number} canvas_pixel_width
+* @param {number} canvas_pixel_height
+* @param {number} x1
+* @param {number} x2
+* @param {number} y1
+* @param {number} y2
+* @param {string} x_axis
+* @param {string} y_axis
+* @param {number} slice
+* @param {bigint} resolution
+* @param {boolean} continuity
+* @param {string} vars
+*/
+export function draw_cnv(ctx, func, color, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, x_axis, y_axis, slice, resolution, continuity, vars) {
+    try {
+        const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len2 = WASM_VECTOR_LEN;
+        const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len3 = WASM_VECTOR_LEN;
+        const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len4 = WASM_VECTOR_LEN;
+        wasm.draw_cnv(addBorrowedObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
+    } finally {
+        heap[stack_pointer++] = undefined;
+    }
+}
+
+/**
+* @returns {boolean}
+*/
+export function debug() {
+    const ret = wasm.debug();
+    return ret !== 0;
+}
+
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function parse_text(input) {
+    let deferred2_0;
+    let deferred2_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len0 = WASM_VECTOR_LEN;
+        wasm.parse_text(retptr, ptr0, len0);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        deferred2_0 = r0;
+        deferred2_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
     }
 }
 
