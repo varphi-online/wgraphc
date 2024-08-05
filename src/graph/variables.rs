@@ -1,4 +1,3 @@
-use crate::util::clog;
 use serde_json;
 use std::collections::HashMap;
 use wasm_bindgen::prelude::*;

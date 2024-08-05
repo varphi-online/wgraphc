@@ -19,6 +19,15 @@
 */
 export function draw_cnv(ctx: OffscreenCanvasRenderingContext2D, func: string, color: string, canvas_pixel_width: number, canvas_pixel_height: number, x1: number, x2: number, y1: number, y2: number, x_axis: string, y_axis: string, slice: number, resolution: bigint, continuity: boolean, vars: string): void;
 /**
+* @returns {boolean}
+*/
+export function debug(): boolean;
+/**
+* @param {string} input
+* @returns {string}
+*/
+export function parse_text(input: string): string;
+/**
 * @param {string} key
 * @param {string} value
 * @param {string} map
@@ -31,25 +40,16 @@ export function set_var(key: string, value: string, map: string): string;
 * @returns {string}
 */
 export function del_var(key: string, map: string): string;
-/**
-* @returns {boolean}
-*/
-export function debug(): boolean;
-/**
-* @param {string} input
-* @returns {string}
-*/
-export function parse_text(input: string): string;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly draw_cnv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number, s: number, t: number) => void;
-  readonly set_var: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
-  readonly del_var: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly debug: () => number;
   readonly parse_text: (a: number, b: number, c: number) => void;
+  readonly set_var: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly del_var: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

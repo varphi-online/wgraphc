@@ -1,4 +1,4 @@
-pub mod ast;
+pub mod lexer;
+pub mod tokenizer;
 pub mod evaluator;
-pub mod scanner;
-pub mod token;
+pub mod structs;

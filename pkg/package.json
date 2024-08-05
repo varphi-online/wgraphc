@@ -4,7 +4,13 @@
   "collaborators": [
     "Willow Rose <nbash1984@gmail.com>"
   ],
-  "version": "0.1.0",
+  "description": "A web-based complex graphing calculator written in JavaScript and Rust using WebAssembly",
+  "version": "0.1.1",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/varphi-online/wgraphc"
+  },
   "files": [
     "wgraphcal_bg.wasm",
     "wgraphcal.js",

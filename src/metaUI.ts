@@ -197,6 +197,7 @@ class function_box {
 
 				// Update internal linked list
 				new_function_box.previous = self;
+				new_function_box.next = self.next;
 				self.next = new_function_box;
 
 				self.container.insertAdjacentElement(
@@ -262,7 +263,7 @@ class function_box {
 			let split = value.split("=", 2);
 			if (
 				/([a-zA-Z]+)(_({(\w*(})?)?)?)?$/gy.test(split[0]) &&
-				/(\d)+(\.)?(\d)*[i]?$/gy.test(split[1])
+				/[-]*(\d)+(\.)?(\d)*[i]?$/gy.test(split[1])
 			) {
 				set_varmap(await set_variable(split[0], split[1], var_map));
 				context.serialized_function = "";
