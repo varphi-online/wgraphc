@@ -1,8 +1,11 @@
 [package]
 name = "wgraphcal"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Willow Rose <nbash1984@gmail.com>"]
+description = "A web-based complex graphing calculator written in JavaScript and Rust using WebAssembly"
+repository = "https://github.com/varphi-online/wgraphc"
+license = "GPL-3.0-only"
 
 
 [lib]
@@ -27,4 +30,5 @@ default = []
 logging = []
 
 [profile.release]
+lto = true
 opt-level = 3

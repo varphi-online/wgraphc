@@ -1,4 +1,4 @@
-use super::super::parser::token;
+use super::super::parser::structs::operator::Operator;
 use num_complex::*;
 use wasm_bindgen::prelude::*;
 use web_sys::OffscreenCanvasRenderingContext2d;
@@ -44,7 +44,7 @@ pub fn draw_cnv(
         / ((resolution as f64 * GRAPH_RESOLUTION as f64) / 2.0);
     let low_y_snap_bound = (y1 / sfy).floor() * sfy;
 
-    let ast: Option<token::Operator> = serde_json::from_str::<token::Operator>(&func).ok();
+    let ast: Option<Operator> = serde_json::from_str::<Operator>(&func).ok();
 
     let apply_transformation = |inp1: f64, inp2: f64| -> (f64, f64) {
         if let Some(value) = ast.clone() {

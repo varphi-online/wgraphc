@@ -1,4 +1,4 @@
-use super::token::{Arities, OpVec, Operator, Token};
+use super::{arity::Arities,op_vec::OpVec,token::Token,operator::Operator};
 use crate::util::clog;
 use serde::{Deserialize, Serialize};
 
@@ -7,19 +7,20 @@ macro_rules! clog {
     ($($t:tt)*) => {};
 }
 */
+
 #[derive(Serialize, Deserialize)]
-pub struct AST {
+pub struct AbstractSyntaxTree {
     token_stream: OpVec,
-    pub operands: OpVec,
+    operands: OpVec,
     operators: OpVec,
     next: Operator,
     token_index: usize,
     pub value: Operator,
 }
 
-impl Default for AST {
+impl Default for AbstractSyntaxTree {
     fn default() -> Self {
-        AST {
+        AbstractSyntaxTree {
             token_stream: OpVec::new(),
             operands: OpVec::new(),
             operators: OpVec::new(),
@@ -30,7 +31,7 @@ impl Default for AST {
     }
 }
 
-impl AST {
+impl AbstractSyntaxTree {
     pub fn from_shunting_yard(&mut self, stream: OpVec) -> Option<Operator> {
         if stream.len() > 1 {
             self.token_stream = stream;
