@@ -14,10 +14,17 @@ export function set_var(key: string, value: string, map: string): string;
 */
 export function del_var(key: string, map: string): string;
 /**
-* @param {string} input
+* @param {number} real
+* @param {number} imag
 * @returns {string}
 */
-export function input_type(input: string): string;
+export function number_operator_from_2df64(real: number, imag: number): string;
+/**
+* @param {string} input
+* @param {string} _map
+* @returns {string}
+*/
+export function parse_input(input: string, _map: string): string;
 /**
 * @param {OffscreenCanvasRenderingContext2D} ctx
 * @param {string} func
@@ -52,10 +59,12 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly set_var: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly del_var: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly input_type: (a: number, b: number, c: number) => void;
+  readonly number_operator_from_2df64: (a: number, b: number, c: number) => void;
+  readonly parse_input: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly draw_cnv: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number, q: number, r: number, s: number, t: number) => void;
   readonly debug: () => number;
   readonly parse_text: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_exn_store: (a: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;

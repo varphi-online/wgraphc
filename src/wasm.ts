@@ -4,6 +4,8 @@ import init, {
 	set_var,
 	del_var,
 	debug,
+	parse_input,
+	number_operator_from_2df64
 } from "../pkg/wgraphcal.js";
 import {
 	canvasContainer,
@@ -14,20 +16,30 @@ import { metaUIContainer } from "./metaUI.js";
 
 let initialized = false;
 
-async function enssureWASMInit() {
+async function ensureWASMInit() {
 	if (!initialized) {
 		await init();
 		initialized = true;
 	}
 }
 
+export async function get_input_type(input: string, map: string): Promise<string> {
+	await ensureWASMInit();
+	return await parse_input(input, map);
+}
+
+export async function get_num_op(real: number, imag: number): Promise<string> {
+	await ensureWASMInit();
+	return await number_operator_from_2df64(real,imag);
+}
+
 export async function get_wasm_debug(): Promise<boolean> {
-	await enssureWASMInit();
+	await ensureWASMInit();
 	return await debug();
 }
 
 export async function parse_string(string: string) {
-	await enssureWASMInit();
+	await ensureWASMInit();
 	return await parse_text(string);
 }
 
@@ -50,7 +62,7 @@ export async function oscDraw(
 	ui: metaUIContainer,
 	vars: string,
 ) {
-	await enssureWASMInit();
+	await ensureWASMInit();
 	if (ctx.draw) {
 		await draw_cnv(
 			ctx.context,

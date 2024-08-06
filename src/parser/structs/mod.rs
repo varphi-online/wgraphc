@@ -4,4 +4,3 @@ pub mod operator;
 pub mod token;
 pub mod value;
 pub mod abstract_syntax_tree;
-pub mod function;

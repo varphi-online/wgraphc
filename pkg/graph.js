@@ -152,7 +152,7 @@ export class graphContainer {
                 String(new Date().getTime() - frameTime) + "ms" + debug;
         }
     }
-    //TODO: Fix for user-defined aspect ratios because grid lines are not drawn
+    //BUG: Fix for user-defined aspect ratios because grid lines are not drawn
     //properly at extremes
     gridline(int, graph) {
         let opts = [100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
@@ -245,6 +245,10 @@ export class proceduralOffscreen {
     resetBitmap() {
         this.object.height = this.height;
         this.object.width = this.width;
+    }
+    set_draw(value) {
+        console.log("Set draw to: " + value);
+        this.draw = value;
     }
 }
 function resize(canvas, ctx, graph) {

@@ -1,14 +1,27 @@
-use super::super::parser::structs::{operator::Operator,function::Function};
+use std::f64::consts::PI;
+
+use crate::util::clog;
+
+use super::{super::parser::structs::operator::Operator, variables::str_to_varmap};
 use num_complex::*;
 use wasm_bindgen::prelude::*;
 use web_sys::OffscreenCanvasRenderingContext2d;
 
 const GRAPH_RESOLUTION: i64 = 40;
 
+fn optimize_function(func: String, vars: String) -> Option<Operator> {
+    // Here we parse two strings, combine and flatten them into one operator that can be evaluated
+    if let Ok(function) = serde_json::from_str::<Operator>(&func) {
+        Some(function.flatten(str_to_varmap(vars)))
+    } else {
+        None
+    }
+}
+
 #[wasm_bindgen]
 #[allow(clippy::too_many_arguments)]
 pub fn draw_cnv(
-    ctx: &OffscreenCanvasRenderingContext2d,
+    ctx: OffscreenCanvasRenderingContext2d,
     func: String,
     color: String,
     canvas_pixel_width: f64,
@@ -46,15 +59,12 @@ pub fn draw_cnv(
         / ((resolution as f64 * GRAPH_RESOLUTION as f64) / 2.0);
     let low_y_snap_bound = (y1 / sfy).floor() * sfy;
 
-    let ast: Option<Operator> = serde_json::from_str::<Operator>(&func).ok();
 
-    let apply_transformation = |inp1: f64, inp2: f64| -> (f64, f64) {
-        if let Some(value) = ast.clone() {
-            let num = Complex64::new(inp1, inp2);
-            let calc = value.eval(num, vars.clone());
-            return (calc.re, calc.im);
-        }
-        (f64::INFINITY, f64::INFINITY)
+    if let Some(ast) = optimize_function(func, vars){
+    let apply_transformation = |inp1: &f64, inp2: &f64| -> (f64, f64) {
+        let num = Complex64::new(inp1.clone(), inp2.clone());
+        let calc = ast.eval(num);
+        return (calc.re, calc.im);
     };
 
     /*
@@ -71,11 +81,43 @@ pub fn draw_cnv(
         ]
     };
 
+    //Return early if we only have to draw one point.
+    if ast.is_constant(){
+        let point: Complex64 = ast.eval(Complex64::new(0.0, 0.0));
+        let [x,y] = match (x_axis.as_str(), y_axis.as_str()) {
+        ("i_r", "o_r") => 
+            to_screenspace(point.re, 0.0),
+        ("i_i", "o_i") =>
+            to_screenspace(0.0, point.im),
+        _ => to_screenspace(
+            match x_axis.as_str() {
+                "i_r"|"o_r"=> 
+                    point.re,
+                "i_i"|"o_i" => 
+                    point.im,
+                _ => 0.0,
+                },
+            match y_axis.as_str() {
+                "i_r"|"o_r"=> 
+                    point.re,
+                "i_i"|"o_i" => 
+                    point.im,
+                _ => 0.0,
+                },
+        )
+        };
+        ctx.begin_path();
+        let circle = ctx.arc(x, y, 4.0, 0.0, PI*2.0);
+        ctx.set_fill_style(&JsValue::from_str(color.as_str()));
+        ctx.fill();
+        return
+    }
+
     let mut todraw: Vec<[f64; 2]> = Vec::new();
     if x_axis.as_str() == "i_r" && y_axis.as_str() == "o_r" && slice == 0.0 {
         for value in 0..GRAPH_RESOLUTION * resolution {
             let num = value as f64 * sfx + low_x_snap_bound;
-            let out = apply_transformation(num, 0.0);
+            let out = apply_transformation(&num, &0.0);
             todraw.push(to_screenspace(num, out.0));
         }
     } else {
@@ -85,32 +127,32 @@ pub fn draw_cnv(
                 let input_real: f64 = x as f64 * sfx + low_x_snap_bound;
                 todraw.push(match (x_axis.as_str(), y_axis.as_str()) {
                     ("i_r", "o_r") => {
-                        let (output_real, _output_imag) = apply_transformation(input_real, slice);
+                        let (output_real, _output_imag) = apply_transformation(&input_real, &slice);
                         to_screenspace(input_real, output_real)
                     }
                     ("i_r", "i_i") => to_screenspace(input_real, input_imag),
                     ("i_r", "o_i") => {
                         let (_output_real, output_imag) =
-                            apply_transformation(input_real, input_imag);
+                            apply_transformation(&input_real, &input_imag);
                         to_screenspace(input_real, output_imag)
                     }
                     ("o_r", "o_i") => {
                         let (output_real, output_imag) =
-                            apply_transformation(input_real, input_imag);
+                            apply_transformation(&input_real, &input_imag);
                         to_screenspace(output_real, output_imag)
                     }
                     ("i_i", "o_i") => {
-                        let (_utput_real, output_imag) = apply_transformation(slice, input_imag);
+                        let (_utput_real, output_imag) = apply_transformation(&slice, &input_imag);
                         to_screenspace(input_imag, output_imag)
                     }
                     ("i_i", "o_r") => {
                         let (output_real, _output_imag) =
-                            apply_transformation(input_real, input_imag);
+                            apply_transformation(&input_real, &input_imag);
                         to_screenspace(input_imag, output_real)
                     }
                     ("o_i", "o_r") => {
                         let (output_real, output_imag) =
-                            apply_transformation(input_real, input_imag);
+                            apply_transformation(&input_real, &input_imag);
                         to_screenspace(output_imag, output_real)
                     }
                     _ => [0.0, 0.0],
@@ -118,32 +160,41 @@ pub fn draw_cnv(
             }
         }
     }
-    if continuity {
-        /*
-        TODO: Fix bug with the start and end of a quadratic curve and the
-        imaginary input where the loop seems to close over the vector
-        */
-        ctx.set_stroke_style(&JsValue::from_str(color.as_str()));
-        ctx.set_line_width(2.0);
+    draw_to_context(todraw, continuity, ctx, color);
+}
+}
 
-        ctx.begin_path();
-        ctx.move_to(todraw[0][0], todraw[0][1]);
-        for i in 0..todraw.len() - 1 {
-            let x_control = (todraw[i][0] + todraw[i + 1][0]) / 2.0;
-            let y_control = (todraw[i][1] + todraw[i + 1][1]) / 2.0;
-            ctx.quadratic_curve_to(
-                todraw[i][0].round(),
-                todraw[i][1].round(),
+fn draw_to_context(
+    points: Vec<[f64; 2]>,
+    continuity: bool,
+    context: OffscreenCanvasRenderingContext2d,
+    color: String,
+) {
+    if continuity {
+        //BUG: Fix bug with the start and end of a quadratic curve and the
+        //imaginary input where the loop seems to close over the vector
+
+        context.set_stroke_style(&JsValue::from_str(color.as_str()));
+        context.set_line_width(2.0);
+
+        context.begin_path();
+        context.move_to(points[0][0], points[0][1]);
+        for i in 0..points.len() - 1 {
+            let x_control = (points[i][0] + points[i + 1][0]) / 2.0;
+            let y_control = (points[i][1] + points[i + 1][1]) / 2.0;
+            context.quadratic_curve_to(
+                points[i][0].round(),
+                points[i][1].round(),
                 x_control.round(),
                 y_control.round(),
             );
         }
 
-        ctx.stroke();
+        context.stroke();
     } else {
-        ctx.set_fill_style(&JsValue::from_str(color.as_str()));
-        for i in todraw {
-            ctx.fill_rect(i[0] - 1.0, i[1] - 1.0, 3.0, 3.0);
+        context.set_fill_style(&JsValue::from_str(color.as_str()));
+        for i in points {
+            context.fill_rect(i[0] - 1.0, i[1] - 1.0, 3.0, 3.0);
         }
     }
 }

@@ -47,6 +47,14 @@ function takeObject(idx) {
     return ret;
 }
 
+function handleError(f, args) {
+    try {
+        return f.apply(this, args);
+    } catch (e) {
+        wasm.__wbindgen_exn_store(addHeapObject(e));
+    }
+}
+
 let WASM_VECTOR_LEN = 0;
 
 const cachedTextEncoder = (typeof TextEncoder !== 'undefined' ? new TextEncoder('utf-8') : { encode: () => { throw Error('TextEncoder not available') } } );
@@ -167,35 +175,53 @@ export function del_var(key, map) {
 }
 
 /**
-* @param {string} input
+* @param {number} real
+* @param {number} imag
 * @returns {string}
 */
-export function input_type(input) {
-    let deferred2_0;
-    let deferred2_1;
+export function number_operator_from_2df64(real, imag) {
+    let deferred1_0;
+    let deferred1_1;
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.number_operator_from_2df64(retptr, real, imag);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        deferred1_0 = r0;
+        deferred1_1 = r1;
+        return getStringFromWasm0(r0, r1);
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
+        wasm.__wbindgen_free(deferred1_0, deferred1_1, 1);
+    }
+}
+
+/**
+* @param {string} input
+* @param {string} _map
+* @returns {string}
+*/
+export function parse_input(input, _map) {
+    let deferred3_0;
+    let deferred3_1;
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        wasm.input_type(retptr, ptr0, len0);
+        const ptr1 = passStringToWasm0(_map, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const len1 = WASM_VECTOR_LEN;
+        wasm.parse_input(retptr, ptr0, len0, ptr1, len1);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
-        deferred2_0 = r0;
-        deferred2_1 = r1;
+        deferred3_0 = r0;
+        deferred3_1 = r1;
         return getStringFromWasm0(r0, r1);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
-        wasm.__wbindgen_free(deferred2_0, deferred2_1, 1);
+        wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
 }
 
-let stack_pointer = 128;
-
-function addBorrowedObject(obj) {
-    if (stack_pointer == 1) throw new Error('out of js stack');
-    heap[--stack_pointer] = obj;
-    return stack_pointer;
-}
 /**
 * @param {OffscreenCanvasRenderingContext2D} ctx
 * @param {string} func
@@ -214,21 +240,17 @@ function addBorrowedObject(obj) {
 * @param {string} vars
 */
 export function draw_cnv(ctx, func, color, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, x_axis, y_axis, slice, resolution, continuity, vars) {
-    try {
-        const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len3 = WASM_VECTOR_LEN;
-        const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-        const len4 = WASM_VECTOR_LEN;
-        wasm.draw_cnv(addBorrowedObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
-    } finally {
-        heap[stack_pointer++] = undefined;
-    }
+    const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len4 = WASM_VECTOR_LEN;
+    wasm.draw_cnv(addHeapObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
 }
 
 /**
@@ -302,6 +324,12 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_clearRect_c23c30e03645006b = function(arg0, arg1, arg2, arg3, arg4) {
         getObject(arg0).clearRect(arg1, arg2, arg3, arg4);
     };
+    imports.wbg.__wbg_beginPath_b7965eea1d659a2d = function(arg0) {
+        getObject(arg0).beginPath();
+    };
+    imports.wbg.__wbg_arc_d7827cbef51bfd38 = function() { return handleError(function (arg0, arg1, arg2, arg3, arg4, arg5) {
+        getObject(arg0).arc(arg1, arg2, arg3, arg4, arg5);
+    }, arguments) };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
@@ -312,6 +340,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
+    imports.wbg.__wbg_fill_a0feb960027713e0 = function(arg0) {
+        getObject(arg0).fill();
+    };
     imports.wbg.__wbg_fillRect_9b8f962bc4d89ca1 = function(arg0, arg1, arg2, arg3, arg4) {
         getObject(arg0).fillRect(arg1, arg2, arg3, arg4);
     };
@@ -320,9 +351,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_setlineWidth_8ceaa29cc0ce9e05 = function(arg0, arg1) {
         getObject(arg0).lineWidth = arg1;
-    };
-    imports.wbg.__wbg_beginPath_b7965eea1d659a2d = function(arg0) {
-        getObject(arg0).beginPath();
     };
     imports.wbg.__wbg_moveTo_1bb0eb54391175e3 = function(arg0, arg1, arg2) {
         getObject(arg0).moveTo(arg1, arg2);

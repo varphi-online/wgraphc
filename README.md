@@ -4,11 +4,9 @@ A tool to visualize and modify functions that act in both the real and complex p
 
 TODO:
 
-- Add a complex flag and variables list to the AST object
-- Preprocess AST to be only constants and one input var in graphing stage
-- If an AST has no variables, evaluate down to a value, including a point flag, to not waste calc time
+- Add a is_complex function to ast
 - constants like PI, e, phi etc...
-- Fix regex recognition of variables and add complex support ("-" and _i_)
+- Function customization
 
 ---
 

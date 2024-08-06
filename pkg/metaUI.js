@@ -1,29 +1,34 @@
 import { graph, mainCanvasContext, render, var_map, set_varmap, } from "./index.js";
 import { proceduralOffscreen } from "./graph.js";
-import { parse_string, set_variable, del_variable } from "./wasm.js";
+import { set_variable, del_variable, get_input_type, get_num_op, } from "./wasm.js";
 class function_box {
     /*
-    A function box object describes a div xontaining the textual input field
-    in HTML, optionally a slider input the offscreen context attached to it,
-    and a few other attributes useful in working with the data stored in
-    itsself.
-
-    On "Enter", the function box creates a new input box with its own constructor
-    and on "Backspace" deletes itsself, all mappings/references to itsself and
-    moves the user's cursor focus to the input box directly above.
-
-    If a box contains a variable declaration (i.e. <variableName>=<number>) it
-    will show a slider element to allow for ease of variable changing, and
-    will hide said slider if the declaration is invalid/non-exisent
-
-    This also acts as a node in a reverse linked list for easy access of the previous
-    */
+      A function box object describes a div xontaining the textual input field
+      in HTML, optionally a slider input the offscreen context attached to it,
+      and a few other attributes useful in working with the data stored in
+      itsself.
+  
+      On "Enter", the function box creates a new input box with its own constructor
+      and on "Backspace" deletes itsself, all mappings/references to itsself and
+      moves the user's cursor focus to the input box directly above.
+  
+      If a box contains a variable declaration (i.e. <variableName>=<number>) it
+      will show a slider element to allow for ease of variable changing, and
+      will hide said slider if the declaration is invalid/non-exisent
+  
+      This also acts as a node in a reverse linked list for easy access of the previous
+      */
     container;
     text_box;
     slider_container;
-    slider;
-    slider_min;
-    slider_max;
+    slider_real_container;
+    slider_real;
+    slider_real_min;
+    slider_real_max;
+    slider_imag_container;
+    slider_imag;
+    slider_imag_min;
+    slider_imag_max;
     // Keeps track of if a var decl. is in progress to not reset slider
     decl_flag;
     offscreen;
@@ -31,7 +36,7 @@ class function_box {
     variable_name;
     mapped_var_name;
     variable_value;
-    variable_imag;
+    variable_type;
     parent;
     context_map;
     next;
@@ -47,8 +52,8 @@ class function_box {
         this.initialize_DOM();
         this.variable_name = "";
         this.mapped_var_name = "";
-        this.variable_value = 0;
-        this.variable_imag = false;
+        this.variable_value = [0, 0];
+        this.variable_type = "";
         this.initialize_Inputs();
         this.parent.function_boxes.push(this);
     }
@@ -69,73 +74,105 @@ class function_box {
             }
             return element;
         };
+        //TODO: Add color selector and play button for func box
         let container = createElement("div", [], "container", null);
         let input = (createElement("input", ["function_box_text_input"], "input", null));
         // The slider is hidden by default and only is visible with a var decl.
         let slider_container = (createElement("div", [], "slider_container", null));
         slider_container.style.display = "none";
-        let slider = (createElement("input", [], "slider", "range"));
-        let slider_min = (createElement("input", ["function_box_slider_input", "function_box_input", "left"], "slider_min", null));
-        let slider_max = (createElement("input", ["function_box_slider_input", "function_box_input", "right"], "slider_max", null));
-        slider_container.appendChild(slider_min);
-        slider_container.appendChild(slider);
-        slider_container.appendChild(slider_max);
+        slider_container.style.flexDirection = "column";
+        let slider_real_container = (createElement("div", ["function_box_slider_container"], "slider_real_container", null));
+        let slider_real = (createElement("input", ["function_box_slider"], "slider_real", "range"));
+        let slider_real_min = (createElement("input", ["function_box_slider_input", "function_box_input", "left"], "slider_real_min", null));
+        let slider_real_max = (createElement("input", ["function_box_slider_input", "function_box_input", "right"], "slider_real_max", null));
+        let slider_imag_container = (createElement("div", ["function_box_slider_container"], "slider_imag_container", null));
+        let slider_imag = (createElement("input", ["function_box_slider"], "slider_imag", "range"));
+        let slider_imag_min = (createElement("input", ["function_box_slider_input", "function_box_input", "left"], "slider_imag_min", null));
+        let slider_imag_max = (createElement("input", ["function_box_slider_input", "function_box_input", "right"], "slider_imag_max", null));
+        slider_real_container.appendChild(slider_real_min);
+        slider_real_container.appendChild(slider_real);
+        slider_real_container.appendChild(slider_real_max);
+        slider_imag_container.appendChild(slider_imag_min);
+        slider_imag_container.appendChild(slider_imag);
+        slider_imag_container.appendChild(slider_imag_max);
+        slider_container.appendChild(slider_real_container);
+        slider_container.appendChild(slider_imag_container);
         container.appendChild(input);
         container.appendChild(slider_container);
         this.container = container;
         this.text_box = input;
         this.slider_container = slider_container;
-        this.slider = slider;
-        this.slider_min = slider_min;
-        this.slider_max = slider_max;
+        this.slider_real_container = slider_real_container;
+        this.slider_real = slider_real;
+        this.slider_real_min = slider_real_min;
+        this.slider_real_max = slider_real_max;
+        this.slider_imag_container = slider_imag_container;
+        this.slider_imag = slider_imag;
+        this.slider_imag_min = slider_imag_min;
+        this.slider_imag_max = slider_imag_max;
     }
     initialize_Inputs() {
         let self = this;
         // Primary textual input
         this.text_box.oninput = async function () {
-            [self.variable_name, self.variable_value, self.variable_imag] =
-                await self.handle_string(self.text_box.value, self.offscreen);
+            await self.handle_string(self.text_box.value);
+            function set_min_max_val(min_box, slider, max_box, min, max, value) {
+                min_box.value = String(min);
+                max_box.value = String(max);
+                slider.min = String(min);
+                slider.value = String(value);
+                slider.max = String(max);
+                slider.step = String((max + min) / 200);
+            }
             if (self.variable_name != "") {
                 self.mapped_var_name = self.variable_name;
-                // We don't want to waste extra time drawing to the screen if
-                // the box declares a var
-                self.offscreen.draw = false;
                 self.slider_container.style.display = "flex";
+                switch (self.variable_type) {
+                    case "000":
+                        self.slider_real_container.style.display = "flex";
+                        self.slider_imag_container.style.display = "none";
+                        break;
+                    case "001":
+                        self.slider_real_container.style.display = "none";
+                        self.slider_imag_container.style.display = "flex";
+                        break;
+                    case "010":
+                        self.slider_real_container.style.display = "flex";
+                        self.slider_imag_container.style.display = "flex";
+                        break;
+                    default:
+                        self.slider_container.style.display = "none";
+                        break;
+                }
                 if (!self.decl_flag) {
-                    self.slider_min.value = String(self.variable_value - 10);
-                    self.slider.min = String(self.variable_value - 10);
-                    self.slider_max.value = String(self.variable_value + 10);
-                    self.slider.max = String(self.variable_value + 10);
-                    self.slider.value = String(self.variable_value);
-                    self.slider.step = String(self.variable_value / 200);
-                } // Handles changing of the value if the slider has been used
+                    set_min_max_val(self.slider_real_min, self.slider_real, self.slider_real_max, self.variable_value[0] - 10, self.variable_value[0] + 10, self.variable_value[0]);
+                    set_min_max_val(self.slider_imag_min, self.slider_imag, self.slider_imag_max, self.variable_value[1] - 10, self.variable_value[1] + 10, self.variable_value[1]);
+                }
+                // Handles changing of the value if the slider has been used
                 else {
                     // Specific cases where variable set is out of defined range
-                    let value = String(self.variable_value);
-                    if (parseFloat(self.slider_min.value) > self.variable_value) {
-                        self.slider_min.value = value;
-                        self.slider.min = value;
-                        self.slider.value = value;
-                        self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) /
-                            2 /
-                            200);
+                    if (parseFloat(self.slider_real_min.value) > self.variable_value[0]) {
+                        set_min_max_val(self.slider_real_min, self.slider_real, self.slider_real_max, self.variable_value[0], parseFloat(self.slider_real_max.value), self.variable_value[0]);
                     }
-                    else if (parseFloat(self.slider_max.value) < self.variable_value) {
-                        self.slider_max.value = value;
-                        self.slider.max = value;
-                        self.slider.value = value;
-                        self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) /
-                            2 /
-                            200);
+                    else if (parseFloat(self.slider_real_max.value) < self.variable_value[0]) {
+                        set_min_max_val(self.slider_real_min, self.slider_real, self.slider_real_max, parseFloat(self.slider_real_min.value), self.variable_value[0], self.variable_value[0]);
                     }
                     else {
-                        self.slider.value = String(self.variable_value);
+                        self.slider_real.value = String(self.variable_value[0]);
+                    }
+                    if (parseFloat(self.slider_imag_min.value) > self.variable_value[1]) {
+                        set_min_max_val(self.slider_imag_min, self.slider_imag, self.slider_imag_max, self.variable_value[0], parseFloat(self.slider_imag_max.value), self.variable_value[0]);
+                    }
+                    else if (parseFloat(self.slider_imag_max.value) < self.variable_value[1]) {
+                        set_min_max_val(self.slider_imag_min, self.slider_imag, self.slider_imag_max, parseFloat(self.slider_imag_min.value), self.variable_value[0], self.variable_value[0]);
+                    }
+                    else {
+                        self.slider_imag.value = String(self.variable_value[1]);
                     }
                 }
             }
             else {
                 self.slider_container.style.display = "none";
-                self.offscreen.draw = true;
             }
             await render();
         };
@@ -165,47 +202,77 @@ class function_box {
             }
         });
         // Slider changes will be reflected in the varmap and the sister text-box
-        this.slider.oninput = async function () {
+        this.slider_real.oninput = async function () {
             self.decl_flag = true;
-            self.variable_value = parseFloat(self.slider.value);
-            set_varmap(await set_variable(self.variable_name, String(self.variable_value), var_map));
-            self.text_box.value =
-                self.variable_name + "=" + String(self.variable_value);
+            self.variable_value[0] = parseFloat(self.slider_real.value);
+            let [value, display] = (await get_num_op(self.variable_value[0], self.variable_value[1])).split("~");
+            set_varmap(await set_variable(self.variable_name, value, var_map));
+            self.text_box.value = self.variable_name + "=" + display;
+            await render();
+        };
+        this.slider_imag.oninput = async function () {
+            self.decl_flag = true;
+            self.variable_value[1] = parseFloat(self.slider_imag.value);
+            let [value, display] = (await get_num_op(self.variable_value[0], self.variable_value[1])).split("~");
+            set_varmap(await set_variable(self.variable_name, value, var_map));
+            self.text_box.value = self.variable_name + "=" + display;
             await render();
         };
         // Update slider bounds and step on input
-        this.slider_min.oninput = async function () {
-            self.slider.min = self.slider_min.value;
-            self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) / 2 / 200);
+        this.slider_real_min.oninput = async function () {
+            self.slider_real.min = self.slider_real_min.value;
+            self.slider_real.step = String((parseFloat(self.slider_real.min) + parseFloat(self.slider_real.max)) / 200);
         };
-        this.slider_max.oninput = async function () {
-            self.slider.max = self.slider_max.value;
-            self.slider.step = String((parseFloat(self.slider.min) + parseFloat(self.slider.max)) / 2 / 200);
+        this.slider_real_max.oninput = async function () {
+            self.slider_real.max = self.slider_real_max.value;
+            self.slider_real.step = String((parseFloat(self.slider_real.min) + parseFloat(self.slider_real.max)) /
+                200);
+        };
+        this.slider_imag_min.oninput = async function () {
+            self.slider_imag.min = self.slider_imag_min.value;
+            self.slider_imag.step = String((parseFloat(self.slider_imag.min) + parseFloat(self.slider_imag.max)) /
+                200);
+        };
+        this.slider_imag_max.oninput = async function () {
+            self.slider_imag.max = self.slider_imag_max.value;
+            self.slider_imag.step = String((parseFloat(self.slider_imag.min) + parseFloat(self.slider_imag.max)) /
+                200);
         };
     }
-    async handle_string(value, context) {
-        // Check if valid variable assignment, else, try to parse as expression
-        if (value.includes("=")) {
-            let split = value.split("=", 2);
-            if (/([a-zA-Z]+)(_({(\w*(})?)?)?)?$/gy.test(split[0]) &&
-                /[-]*(\d)+(\.)?(\d)*[i]?$/gy.test(split[1])) {
-                set_varmap(await set_variable(split[0], split[1], var_map));
-                context.serialized_function = "";
-                if (split[1].endsWith("i")) {
-                    return [split[0], parseFloat(split[1].slice(0, -1)), true];
-                }
-                else {
-                    return [split[0], parseFloat(split[1]), false];
-                }
-            }
-            else {
-                console.error("Invalid variable assignment");
-            }
+    async handle_string(input) {
+        //Check if valid variable assignment, else, try to parse as expression
+        let [num_type, type, expression, id, value] = (await get_input_type(input, var_map)).split("~", 5);
+        console.log([num_type, type, expression, id, value]);
+        switch (type) {
+            case "00":
+                // Expression
+                console.log("setting sfunc to: " + expression);
+                this.offscreen.serialized_function = expression;
+                this.offscreen.draw = true;
+                break;
+            case "01":
+                // Variable
+                set_varmap(await set_variable(id, expression, await del_variable(this.variable_name, var_map)));
+                this.variable_type = num_type;
+                this.offscreen.draw = false;
+                this.variable_name = id;
+                this.variable_value = value.split(",").map((val) => {
+                    return parseFloat(val);
+                });
+                break;
+            case "10":
+                // Function
+                this.offscreen.serialized_function = expression;
+                this.offscreen.draw = true;
+                break;
+            case "11":
+                // Malformed input
+                set_varmap(await del_variable(this.variable_name, var_map));
+                this.offscreen.set_draw(false);
+                this.offscreen.serialized_function = "";
+                this.variable_name = "";
+                break;
         }
-        else {
-            context.serialized_function = await parse_string(value);
-        }
-        return ["", 0, false];
     }
 }
 export class function_text_inputs {
@@ -283,9 +350,13 @@ function init_slice(metaUIobj) {
             if (metaUIobj.slice_min_input && metaUIobj.slice_max_input) {
                 metaUIobj.slice_slider.setAttribute("min", String(parseFloat(metaUIobj.slice_min_input.value)));
                 metaUIobj.slice_slider.setAttribute("max", String(parseFloat(metaUIobj.slice_max_input.value)));
-                metaUIobj.slice_slider.setAttribute("step", String((parseFloat(metaUIobj.slice_max_input.value) -
-                    parseFloat(metaUIobj.slice_min_input.value) / 2) /
-                    200));
+                metaUIobj.slice_slider.setAttribute("step", "any"
+                //String(
+                //  (parseFloat(metaUIobj.slice_max_input.value) -
+                //    parseFloat(metaUIobj.slice_min_input.value) / 2) /
+                //    200
+                //)
+                );
             }
         }
     }

@@ -4,7 +4,6 @@ use num_complex::{Complex64,c64};
 use std::collections::HashMap;
 use crate::util::clog;
 use std::fmt;
-use std::str::FromStr;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Operator {
@@ -99,32 +98,33 @@ impl Operator {
             .clone()
     }
 
-    pub fn eval(&self, val: Complex64, map: String) -> Complex64 {
+
+    pub fn eval(&self, val: Complex64) -> Complex64 {
         let error: &str = "Improperly constructed input";
         match self.token_type {
             Token::Num => self.values.get_complex().expect(error),
             Token::ID => {
-                let varmap = serde_json::from_str::<HashMap<String, String>>(&map).unwrap();
-                if let Some(mapped_var) = varmap.get(&self.symbol) {
-                    Complex64::from_str(mapped_var).unwrap()
-                } else {
+                //let varmap = serde_json::from_str::<HashMap<String, String>>(&map).unwrap();
+                //if let Some(mapped_var) = varmap.get(&self.symbol) {
+                //    Complex64::from_str(mapped_var).unwrap()
+                //} else {
                     val
-                }
+                //}
             }
-            Token::Add => self.idx(0).eval(val, map.clone()) + self.idx(1).eval(val, map),
-            Token::Sub => self.idx(0).eval(val, map.clone()) - self.idx(1).eval(val, map),
-            Token::Mult => self.idx(0).eval(val, map.clone()) * self.idx(1).eval(val, map),
-            Token::Div => self.idx(0).eval(val, map.clone()) / self.idx(1).eval(val, map),
-            Token::Sqrt => self.idx(0).eval(val, map.clone()).sqrt(),
+            Token::Add => self.idx(0).eval(val) + self.idx(1).eval(val),
+            Token::Sub => self.idx(0).eval(val) - self.idx(1).eval(val),
+            Token::Mult => self.idx(0).eval(val) * self.idx(1).eval(val),
+            Token::Div => self.idx(0).eval(val) / self.idx(1).eval(val),
+            Token::Sqrt => self.idx(0).eval(val).sqrt(),
             Token::Pow => self
                 .idx(0)
-                .eval(val, map.clone())
-                .powc(self.idx(1).eval(val, map)),
-            Token::Sin => self.idx(0).eval(val, map).sin(),
-            Token::Cos => self.idx(0).eval(val, map).cos(),
-            Token::Tan => self.idx(0).eval(val, map).tan(),
-            Token::Log => self.idx(0).eval(val, map).log10(),
-            Token::Ln => self.idx(0).eval(val, map).ln(),
+                .eval(val)
+                .powc(self.idx(1).eval(val)),
+            Token::Sin => self.idx(0).eval(val).sin(),
+            Token::Cos => self.idx(0).eval(val).cos(),
+            Token::Tan => self.idx(0).eval(val).tan(),
+            Token::Log => self.idx(0).eval(val).log10(),
+            Token::Ln => self.idx(0).eval(val).ln(),
             Token::SENTINEL => {
                 clog!("What?");
                 Complex64::new(f64::INFINITY, f64::INFINITY)
@@ -133,33 +133,53 @@ impl Operator {
         }
     }
 
-    pub fn flatten(&self, map: HashMap<String,String>) -> Operator{
+    pub fn flatten(&self, map: HashMap<String,Operator>) -> Operator{
         /*
         Removes unnessecary reads of pre-defined variables by flattening all
         constants into a num-type instead of ID type.
         */
         match self.token_type {
+            Token::Num =>{
+                self.clone()
+            }
             Token::ID => {
                 if let Some(mapped_var) = map.get(&self.symbol) {
-                    let num = Value::Number(Complex64::from_str(mapped_var).unwrap());
-                    let mut out = Operator::from_token(Token::Num);
-                    out.values = num;
-                    out
+                    mapped_var.clone()
                 } else {
                     self.clone()
                 }
             },
             _ => match self.arity {
                 Arities::BINARY => {
-                    self.values.get_index(0).unwrap().flatten(map.clone());
-                    self.values.get_index(1).unwrap().flatten(map);
-                    self.clone()
+                    let mut out = self.clone();
+                    out.values.set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
+                    out.values.set_index(1, self.values.get_index(1).unwrap().flatten(map.clone()));
+                    out
                 },
                 Arities::UNARY => {
-                    self.values.get_index(0).unwrap().flatten(map);
-                    self.clone()
+                    let mut out = self.clone();
+                    out.values.set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
+                    out
                 },
                 _ => self.clone(),
+            }
+        }
+    }
+
+    pub fn is_constant(&self) -> bool {
+        clog!("Is constant, looking at: {}", self);
+        match self.token_type {
+            Token::Num => true,
+            Token::ID => false,
+            _ => match self.arity {
+                Arities::BINARY => {
+                    self.idx(0).is_constant() &
+                    self.idx(1).is_constant()
+                },
+                Arities::UNARY => {
+                    self.idx(0).is_constant()
+                },
+                _ => true,
             }
         }
     }

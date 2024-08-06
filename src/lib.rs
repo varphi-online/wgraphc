@@ -15,7 +15,8 @@ pub mod util {
     // Note that this is using the `log` function imported above during
     // `bare_bones`
     ($($t:tt)*) => (crate::util::log(&format_args!($($t)*).to_string()))
-}
+    }
+    
     #[cfg(not(debug_assertions))]
     macro_rules! clog {
         ($($t:tt)*) => {};
@@ -31,5 +32,5 @@ pub fn debug() -> bool {
 
 #[wasm_bindgen]
 pub fn parse_text(input: String) -> String {
-    parser::evaluator::string_to_ast(input)
+    parser::evaluator::string_to_ast_str(input)
 }
