@@ -10,9 +10,11 @@ import {
   parse_string,
   set_variable,
   del_variable,
-  get_input_type,
   get_num_op,
+  faster_get_input_type,
 } from "./wasm.js";
+
+let recursion_limit = 1;
 
 class function_box {
   /*
@@ -33,6 +35,7 @@ class function_box {
 	*/
   public container: HTMLDivElement;
   public text_box: HTMLInputElement;
+  public text_box_evaluated: HTMLParagraphElement;
   private slider_container: HTMLDivElement;
 
   private slider_real_container: HTMLDivElement;
@@ -58,6 +61,7 @@ class function_box {
   private context_map: Map<number, proceduralOffscreen>;
   public next: function_box;
   public previous: function_box;
+  public dependencies: Array<string>;
 
   constructor(
     parent: function_text_inputs,
@@ -76,6 +80,7 @@ class function_box {
     this.mapped_var_name = "";
     this.variable_value = [0, 0];
     this.variable_type = "";
+    this.dependencies = [];
 
     this.initialize_Inputs();
     this.parent.function_boxes.push(this);
@@ -171,6 +176,14 @@ class function_box {
         null
       )
     );
+    let evaluated = <HTMLParagraphElement>(
+      createElement(
+        "p",
+        [],
+        "input_evaluated",
+        null
+      )
+    );
 
     slider_real_container.appendChild(slider_real_min);
     slider_real_container.appendChild(slider_real);
@@ -185,6 +198,7 @@ class function_box {
 
     container.appendChild(input);
     container.appendChild(slider_container);
+    container.appendChild(evaluated)
 
     this.container = container;
     this.text_box = input;
@@ -199,6 +213,7 @@ class function_box {
     this.slider_imag = slider_imag;
     this.slider_imag_min = slider_imag_min;
     this.slider_imag_max = slider_imag_max;
+    this.text_box_evaluated = evaluated;
   }
 
   initialize_Inputs() {
@@ -206,7 +221,7 @@ class function_box {
 
     // Primary textual input
     this.text_box.oninput = async function () {
-      await self.handle_string(self.text_box.value);
+      await self.handle_string(self.text_box.value,recursion_limit);
 
       function set_min_max_val(
         min_box: HTMLInputElement,
@@ -223,11 +238,14 @@ class function_box {
         slider.value = String(value);
         slider.max = String(max);
 
-        slider.step = String((max + min) / 200);
+        slider.step = String(Math.abs((max - min) / 200));
       }
 
       if (self.variable_name != "") {
+        self.parent.name_map.delete(self.mapped_var_name);
         self.mapped_var_name = self.variable_name;
+        self.parent.name_map.add(self.mapped_var_name);
+
         self.slider_container.style.display = "flex";
         switch (self.variable_type) {
           case "000":
@@ -365,6 +383,11 @@ class function_box {
       ).split("~");
       set_varmap(await set_variable(self.variable_name, value, var_map));
       self.text_box.value = self.variable_name + "=" + display;
+      self.parent.function_boxes.forEach(box => {box.update(recursion_limit)})
+      if (self.text_box_evaluated.innerText.length > 1){
+        let [r,i] = self.variable_value;
+        self.text_box_evaluated.innerText = r.toPrecision(4) + "+" + i.toPrecision(4) + "i";
+      }
       await render();
     };
 
@@ -376,93 +399,114 @@ class function_box {
       ).split("~");
       set_varmap(await set_variable(self.variable_name, value, var_map));
       self.text_box.value = self.variable_name + "=" + display;
+      if (self.text_box_evaluated.innerText.length > 1){
+        let [r,i] = self.variable_value;
+        self.text_box_evaluated.innerText = r.toPrecision(4) + "+" + i.toPrecision(4) + "i";
+      }
+      self.parent.function_boxes.forEach(box => {box.update(recursion_limit)})
       await render();
     };
 
     // Update slider bounds and step on input
     this.slider_real_min.oninput = async function () {
       self.slider_real.min = self.slider_real_min.value;
-      self.slider_real.step = String((parseFloat(self.slider_real.min)+parseFloat(self.slider_real.max))/200);
+      self.slider_real.step = String(Math.abs(parseFloat(self.slider_real.min) - parseFloat(self.slider_real.max))/200);
     };
 
     this.slider_real_max.oninput = async function () {
       self.slider_real.max = self.slider_real_max.value;
       self.slider_real.step = String(
-        (parseFloat(self.slider_real.min) + parseFloat(self.slider_real.max)) /
-          200
+
+        Math.abs(parseFloat(self.slider_real.min) - parseFloat(self.slider_real.max))/200
       );
     };
 
     this.slider_imag_min.oninput = async function () {
       self.slider_imag.min = self.slider_imag_min.value;
       self.slider_imag.step = String(
-        (parseFloat(self.slider_imag.min) + parseFloat(self.slider_imag.max)) /
-          200
+        Math.abs(parseFloat(self.slider_real.min) - parseFloat(self.slider_real.max))/200
       );
     };
 
     this.slider_imag_max.oninput = async function () {
       self.slider_imag.max = self.slider_imag_max.value;
       self.slider_imag.step = String(
-        (parseFloat(self.slider_imag.min) + parseFloat(self.slider_imag.max)) /
-          200
+        Math.abs(parseFloat(self.slider_real.min) - parseFloat(self.slider_real.max))/200
       );
     };
   }
 
-  async handle_string(input: string) {
+  async handle_string(input: string, update: number) {
     //Check if valid variable assignment, else, try to parse as expression
-    let [num_type, type, expression, id, value]: string[] = (
-      await get_input_type(input, var_map)
-    ).split("~", 5);
-    console.log([num_type, type, expression, id, value]);
-    switch (type) {
-      case "00":
-        // Expression
-        console.log("setting sfunc to: " + expression);
+    this.text_box_evaluated.innerText = "";
+    if (input.includes("=")){
+      let [id,arg] = input.split("=",2)
+      let [num_type,expression,value,deps] = (await faster_get_input_type(arg,var_map)).split("~",4);
+      if (id.includes("(") && /(([a-zA-Z]+)(_(\{(\w*?(})?)?)?)?)\((,?(([a-zA-Z]+)(_(\{(\w*?(})?)?)?)?))*?\)/.test(id)){
+        // Case of function
         this.offscreen.serialized_function = expression;
         this.offscreen.draw = true;
-        break;
-      case "01":
-        // Variable
-        set_varmap(
-          await set_variable(
-            id,
-            expression,
-            await del_variable(this.variable_name, var_map)
-          )
-        );
-        this.variable_type = num_type;
-        this.offscreen.draw = false;
-        this.variable_name = id;
-        this.variable_value = value.split(",").map((val): number => {
-          return parseFloat(val);
-        });
-        break;
-      case "10":
-        // Function
-        this.offscreen.serialized_function = expression;
-        this.offscreen.draw = true;
-        break;
-      case "11":
-        // Malformed input
+      } else if (/(([a-zA-Z]+)(_(\{(\w*?(})?)?)?)?)/.test(id)){
+        // Case of variable:
+          set_varmap(
+            await set_variable(
+              id,
+              expression,
+              await del_variable(this.variable_name, var_map)
+            )
+          );
+          if (value.length > 1){
+            let [r,i] = value.split(",");
+            this.text_box_evaluated.innerText = parseFloat(r).toPrecision(4) + "+" + parseFloat(i).toPrecision(4) + "i";
+          }
+          this.variable_type = num_type;
+          this.offscreen.draw = false;
+          this.variable_name = id;
+          this.variable_value = value.split(",").map((val): number => {
+            return parseFloat(val);
+          });
+      } else {
+        // Case of malformed input
         set_varmap(await del_variable(this.variable_name, var_map));
         this.offscreen.set_draw(false);
         this.offscreen.serialized_function = "";
         this.variable_name = "";
-        break;
+      }
+      try{this.dependencies = JSON.parse(deps)} catch {this.dependencies = []};
+    } else {
+      let [num_type,expression,value,deps] = (await faster_get_input_type(input,var_map)).split("~",4);
+      // Case of expression
+      this.offscreen.serialized_function = expression;
+        this.offscreen.draw = true;
+        if (value.length > 1){
+          let [r,i] = value.split(",");
+          this.text_box_evaluated.innerText = parseFloat(r).toPrecision(4) + "+" + parseFloat(i).toPrecision(4) + "i";
+        }
+      try{this.dependencies = JSON.parse(deps)} catch {this.dependencies = []};
     }
+    if (update > 0) this.parent.function_boxes.forEach(box => {box.update(update)});
   }
+    
+
+  update(recursion_lifetime: number) {
+    const { name_map } = this.parent;
+    if (this.dependencies.some(dep =>name_map.has(dep))){
+      
+      this.handle_string(this.text_box.value,recursion_lifetime - 1);
+  }
+}
 }
 
 export class function_text_inputs {
   public function_boxes: Array<function_box>;
   public container: HTMLDivElement;
+  public name_map: Set<string>;
   public context_map: Map<number, proceduralOffscreen>;
   constructor(map: Map<number, proceduralOffscreen>) {
     this.function_boxes = [];
     this.container = <HTMLDivElement>document.getElementById("inputs");
     this.context_map = map;
+    this.name_map = new Set();
     let first_box = new function_box(this, map);
     this.function_boxes.push(first_box);
     this.container.appendChild(this.function_boxes[0].container);

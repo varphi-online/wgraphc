@@ -1,7 +1,4 @@
 use std::f64::consts::PI;
-
-use crate::util::clog;
-
 use super::{super::parser::structs::operator::Operator, variables::str_to_varmap};
 use num_complex::*;
 use wasm_bindgen::prelude::*;
@@ -107,7 +104,7 @@ pub fn draw_cnv(
         )
         };
         ctx.begin_path();
-        let circle = ctx.arc(x, y, 4.0, 0.0, PI*2.0);
+        let _circle = ctx.arc(x, y, 4.0, 0.0, PI*2.0);
         ctx.set_fill_style(&JsValue::from_str(color.as_str()));
         ctx.fill();
         return

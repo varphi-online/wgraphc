@@ -54,13 +54,13 @@ pub fn scan(input: String) -> Vec<String> {
 
 fn string_type(string: String) -> u8 {
     let mut out: u8 = 0;
-    if NUMERIC.captures(&string).unwrap().is_some() {
+    if NUMERIC.is_match(&string).unwrap() {
         out += 4;
     }
-    if ALPHABETIC.captures(&string).unwrap().is_some() {
+    if ALPHABETIC.is_match(&string).unwrap() {
         out += 2;
     }
-    if OPERATIONAL.captures(&string).unwrap().is_some() {
+    if OPERATIONAL.is_match(&string).unwrap() {
         out += 1;
     }
     if out != 0 {
@@ -72,13 +72,13 @@ fn string_type(string: String) -> u8 {
 
 fn char_type(string: String) -> u8 {
     let mut out: u8 = 0;
-    if NUMERIC_CHAR.captures(&string).unwrap().is_some() {
+    if NUMERIC_CHAR.is_match(&string).unwrap() {
         out += 4;
     }
-    if ALPHABETIC_CHAR.captures(&string).unwrap().is_some() {
+    if ALPHABETIC_CHAR.is_match(&string).unwrap() {
         out += 2;
     }
-    if OPERATIONAL.captures(&string).unwrap().is_some() {
+    if OPERATIONAL.is_match(&string).unwrap() {
         out += 1;
     }
     out

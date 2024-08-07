@@ -7,6 +7,9 @@ TODO:
 - Add a is_complex function to ast
 - constants like PI, e, phi etc...
 - Function customization
+- Dynamic sliders
+- Mouse hints/point data/text to screen
+- Optimize parser
 
 ---
 
@@ -21,7 +24,7 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Evaluator to to create tokens to use.
 - [x] Impliment Recursive Descent Parser or the shunting yard algorithim to
       build and AST from tokens.
-- [xx] Global variables and variable assignment, with multiple assignment
+- [x] Global variables and variable assignment, with multiple assignment
 - [ ] Function handling, arbitrary amount of arguments
 - [x] Complex number input, _i_ operator and basic complex functions via vectors
 - [ ] Complex trig operators, with the mclauren series used as an approximation

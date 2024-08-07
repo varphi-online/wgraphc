@@ -110,6 +110,36 @@ function passStringToWasm0(arg, malloc, realloc) {
     WASM_VECTOR_LEN = offset;
     return ptr;
 }
+/**
+* @param {OffscreenCanvasRenderingContext2D} ctx
+* @param {string} func
+* @param {string} color
+* @param {number} canvas_pixel_width
+* @param {number} canvas_pixel_height
+* @param {number} x1
+* @param {number} x2
+* @param {number} y1
+* @param {number} y2
+* @param {string} x_axis
+* @param {string} y_axis
+* @param {number} slice
+* @param {bigint} resolution
+* @param {boolean} continuity
+* @param {string} vars
+*/
+export function draw_cnv(ctx, func, color, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, x_axis, y_axis, slice, resolution, continuity, vars) {
+    const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len0 = WASM_VECTOR_LEN;
+    const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len1 = WASM_VECTOR_LEN;
+    const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len2 = WASM_VECTOR_LEN;
+    const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len3 = WASM_VECTOR_LEN;
+    const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const len4 = WASM_VECTOR_LEN;
+    wasm.draw_cnv(addHeapObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
+}
 
 let cachedInt32Memory0 = null;
 
@@ -198,19 +228,19 @@ export function number_operator_from_2df64(real, imag) {
 
 /**
 * @param {string} input
-* @param {string} _map
+* @param {string} map
 * @returns {string}
 */
-export function parse_input(input, _map) {
+export function faster_parse_input(input, map) {
     let deferred3_0;
     let deferred3_1;
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(_map, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+        const ptr1 = passStringToWasm0(map, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
         const len1 = WASM_VECTOR_LEN;
-        wasm.parse_input(retptr, ptr0, len0, ptr1, len1);
+        wasm.faster_parse_input(retptr, ptr0, len0, ptr1, len1);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         deferred3_0 = r0;
@@ -220,37 +250,6 @@ export function parse_input(input, _map) {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(deferred3_0, deferred3_1, 1);
     }
-}
-
-/**
-* @param {OffscreenCanvasRenderingContext2D} ctx
-* @param {string} func
-* @param {string} color
-* @param {number} canvas_pixel_width
-* @param {number} canvas_pixel_height
-* @param {number} x1
-* @param {number} x2
-* @param {number} y1
-* @param {number} y2
-* @param {string} x_axis
-* @param {string} y_axis
-* @param {number} slice
-* @param {bigint} resolution
-* @param {boolean} continuity
-* @param {string} vars
-*/
-export function draw_cnv(ctx, func, color, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, x_axis, y_axis, slice, resolution, continuity, vars) {
-    const ptr0 = passStringToWasm0(func, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(color, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len1 = WASM_VECTOR_LEN;
-    const ptr2 = passStringToWasm0(x_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len2 = WASM_VECTOR_LEN;
-    const ptr3 = passStringToWasm0(y_axis, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len3 = WASM_VECTOR_LEN;
-    const ptr4 = passStringToWasm0(vars, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
-    const len4 = WASM_VECTOR_LEN;
-    wasm.draw_cnv(addHeapObject(ctx), ptr0, len0, ptr1, len1, canvas_pixel_width, canvas_pixel_height, x1, x2, y1, y2, ptr2, len2, ptr3, len3, slice, resolution, continuity, ptr4, len4);
 }
 
 /**

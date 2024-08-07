@@ -4,11 +4,11 @@ A tool to visualize and modify functions that act in both the real and complex p
 
 TODO:
 
-- Add a complex flag and variables list to the AST object
-- Preprocess AST to be only constants and one input var in graphing stage
-- If an AST has no variables, evaluate down to a value, including a point flag, to not waste calc time
+- Add a is_complex function to ast
 - constants like PI, e, phi etc...
-- Fix regex recognition of variables and add complex support ("-" and _i_)
+- Function customization
+- Dynamic sliders
+- Mouse hints/point data/text to screen
 
 ---
 
@@ -23,7 +23,7 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Evaluator to to create tokens to use.
 - [x] Impliment Recursive Descent Parser or the shunting yard algorithim to
       build and AST from tokens.
-- [xx] Global variables and variable assignment, with multiple assignment
+- [x] Global variables and variable assignment, with multiple assignment
 - [ ] Function handling, arbitrary amount of arguments
 - [x] Complex number input, _i_ operator and basic complex functions via vectors
 - [ ] Complex trig operators, with the mclauren series used as an approximation

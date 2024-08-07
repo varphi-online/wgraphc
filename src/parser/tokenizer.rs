@@ -24,7 +24,7 @@ pub fn tokenize(lexemes: Vec<String>) -> OpVec {
 fn to_tokens(lexemes: Vec<String>) -> OpVec {
     let mut tokens: OpVec = OpVec::new();
     for lexeme in lexemes {
-        if ALPHABETIC.captures(&lexeme).unwrap().is_some() {
+        if ALPHABETIC.is_match(&lexeme).unwrap() {
             if OPERATORS.contains_key(&lexeme) {
                 clog!("Adding something special");
                 let to_add = Operator::from_token(OPERATORS.get(&lexeme).unwrap().clone());
@@ -34,7 +34,7 @@ fn to_tokens(lexemes: Vec<String>) -> OpVec {
                 to_add.symbol.clone_from(&lexeme);
                 tokens.push(to_add);
             }
-        } else if NUMERIC.captures(&lexeme).unwrap().is_some() {
+        } else if NUMERIC.is_match(&lexeme).unwrap(){
             let mut to_add = Operator::from_token(Token::Num);
             to_add.symbol.clone_from(&lexeme);
             if lexeme.ends_with('i') {
@@ -99,8 +99,9 @@ fn apply_partial_grammar(inp: OpVec) -> OpVec {
                         skip_flag = true;
                         continue;
                     }
+                    //HACK: Check this logic concerning ids and non terminals
                     // A non-terminal and a var or open parentheses seperated by a -
-                    (_, Token::ID) | (_, Token::OpenPar) => {
+                    /*(_, Token::ID) | */ (_, Token::OpenPar) => {
                         let mut temp: Operator = Operator::from_token(Token::Num);
                         temp.values = Value::Real(-1.0);
                         intermediate.push(temp);

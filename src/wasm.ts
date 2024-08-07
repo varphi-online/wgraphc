@@ -4,8 +4,8 @@ import init, {
 	set_var,
 	del_var,
 	debug,
-	parse_input,
-	number_operator_from_2df64
+	number_operator_from_2df64,
+	faster_parse_input
 } from "../pkg/wgraphcal.js";
 import {
 	canvasContainer,
@@ -23,9 +23,9 @@ async function ensureWASMInit() {
 	}
 }
 
-export async function get_input_type(input: string, map: string): Promise<string> {
+export async function faster_get_input_type(input: string, map: string): Promise<string> {
 	await ensureWASMInit();
-	return await parse_input(input, map);
+	return await faster_parse_input(input, map);
 }
 
 export async function get_num_op(real: number, imag: number): Promise<string> {

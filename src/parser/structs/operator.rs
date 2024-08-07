@@ -57,8 +57,9 @@ impl Operator {
             precedence: match &type_of_token {
                 Token::SENTINEL | Token::OpenPar | Token::ClosePar => 0,
                 Token::Pow | Token::Sqrt | Token::Log | Token::Ln => 1,
-                Token::Mult | Token::Div | Token::Sin | Token::Cos | Token::Tan => 2,
-                Token::Add | Token::Sub => 3,
+                Token::Sin | Token::Cos | Token::Tan => 2,
+                Token::Mult | Token::Div => 3,
+                Token::Add | Token::Sub => 4,
                 _ => Operator::default().precedence,
             },
             values: match type_of_token {
@@ -182,6 +183,29 @@ impl Operator {
                 _ => true,
             }
         }
+    }
+
+    pub fn dependencies(&self) -> Vec<String> {
+        let mut out = Vec::new();
+        match self.token_type {
+            Token::Num => out,
+            Token::ID => {
+                out.push(self.symbol.clone());
+                out
+            }
+            _ => match self.arity {
+                Arities::BINARY => {
+                    out.append(&mut self.idx(0).dependencies());
+                    out.append(&mut self.idx(1).dependencies());
+                    out
+                },
+                Arities::UNARY => {
+                    out.append(&mut self.idx(0).dependencies());
+                    out
+                },
+                _ => out,
+            }
+    }
     }
 }
 
