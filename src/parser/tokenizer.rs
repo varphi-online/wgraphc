@@ -1,19 +1,13 @@
+use super::expressions::*;
 use crate::util::*;
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
 use num_complex::*;
-//use once_cell::sync::lazy;
 
-use super::structs::{op_vec::OpVec, operator::Operator, token::{Token,OPERATORS}, value::Value};
-
-lazy_static! {
-    static ref NUMERIC: Regex = Regex::new(r"\G((\d)+(\.)?(\d)*[i]?)$").unwrap();
-    static ref ALPHABETIC: Regex = Regex::new(r"\G(([a-zA-Z]+)(_(\{(\w*(})?)?)?)?)$").unwrap();
-    static ref OPERATIONAL: Regex = Regex::new(r"\G([\*/\-+\(\]\)\]<>^|])$").unwrap();
-    static ref NUMERIC_CHAR: Regex = Regex::new(r"[i\.\d]").unwrap();
-    static ref ALPHABETIC_CHAR: Regex = Regex::new(r"[\w\{\}\_]").unwrap();
-    static ref WHITESPACE: Regex = Regex::new(r"\s").unwrap();
-}
+use super::structs::{
+    op_vec::OpVec,
+    operator::Operator,
+    token::{Token, OPERATORS},
+    value::Value,
+};
 
 pub fn tokenize(lexemes: Vec<String>) -> OpVec {
     let mut out: OpVec = to_tokens(lexemes);
@@ -24,7 +18,7 @@ pub fn tokenize(lexemes: Vec<String>) -> OpVec {
 fn to_tokens(lexemes: Vec<String>) -> OpVec {
     let mut tokens: OpVec = OpVec::new();
     for lexeme in lexemes {
-        if ALPHABETIC.is_match(&lexeme).unwrap() {
+        if is_variable_id(&lexeme.as_str()) {
             if OPERATORS.contains_key(&lexeme) {
                 clog!("Adding something special");
                 let to_add = Operator::from_token(OPERATORS.get(&lexeme).unwrap().clone());
@@ -34,7 +28,7 @@ fn to_tokens(lexemes: Vec<String>) -> OpVec {
                 to_add.symbol.clone_from(&lexeme);
                 tokens.push(to_add);
             }
-        } else if NUMERIC.is_match(&lexeme).unwrap(){
+        } else if is_number(&lexeme.as_str()) {
             let mut to_add = Operator::from_token(Token::Num);
             to_add.symbol.clone_from(&lexeme);
             if lexeme.ends_with('i') {
@@ -101,7 +95,8 @@ fn apply_partial_grammar(inp: OpVec) -> OpVec {
                     }
                     //HACK: Check this logic concerning ids and non terminals
                     // A non-terminal and a var or open parentheses seperated by a -
-                    /*(_, Token::ID) | */ (_, Token::OpenPar) => {
+                    /*(_, Token::ID) | */
+                    (_, Token::OpenPar) => {
                         let mut temp: Operator = Operator::from_token(Token::Num);
                         temp.values = Value::Real(-1.0);
                         intermediate.push(temp);

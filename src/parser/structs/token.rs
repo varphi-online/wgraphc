@@ -1,7 +1,7 @@
-use std::fmt;
-use serde::{Deserialize, Serialize};
 use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 
 #[derive(Default, Clone, PartialEq, Hash, Eq, Deserialize, Serialize)]
 pub enum Token {

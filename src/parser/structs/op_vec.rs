@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use super::operator::Operator;
-use std::ops::{Index, IndexMut};
+use serde::{Deserialize, Serialize};
 use std::fmt;
+use std::ops::{Index, IndexMut};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OpVec(pub Vec<Operator>);
@@ -22,10 +22,10 @@ impl OpVec {
     pub fn get(&self, index: usize) -> Option<Operator> {
         self.0.get(index).cloned()
     }
-    pub fn set(&mut self, index: usize, value: Operator){
+    pub fn set(&mut self, index: usize, value: Operator) {
         self.0[index] = value
     }
-    pub fn is_empty(&self)-> bool{
+    pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
     //pub fn get_mut(&mut self, index: usize) -> Option<&mut Operator> {
@@ -59,7 +59,6 @@ impl fmt::Display for OpVec {
         write!(f, "{}", out)
     }
 }
-
 
 impl Index<usize> for OpVec {
     type Output = Operator;

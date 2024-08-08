@@ -1,19 +1,9 @@
+use super::expressions::*;
 use crate::util::*;
-use fancy_regex::Regex;
-use lazy_static::lazy_static;
 //use once_cell::sync::lazy;
 
 macro_rules! clog {
     ($($t:tt)*) => {};
-}
-
-lazy_static! {
-    static ref NUMERIC: Regex = Regex::new(r"\G((\d)+(\.)?(\d)*[i]?)$").unwrap();
-    static ref ALPHABETIC: Regex = Regex::new(r"\G(([a-zA-Z]+)(_(\{(\w*(})?)?)?)?)$").unwrap();
-    static ref OPERATIONAL: Regex = Regex::new(r"\G([\*/\-+\(\]\)\]<>^|])$").unwrap();
-    static ref NUMERIC_CHAR: Regex = Regex::new(r"[i\.\d]").unwrap();
-    static ref ALPHABETIC_CHAR: Regex = Regex::new(r"[\w\{\}\_]").unwrap();
-    static ref WHITESPACE: Regex = Regex::new(r"\s").unwrap();
 }
 
 pub fn scan(input: String) -> Vec<String> {
@@ -21,17 +11,17 @@ pub fn scan(input: String) -> Vec<String> {
     lexemes.push(String::from(""));
 
     for c in input.chars() {
-        let char = c.to_string();
-        if WHITESPACE.is_match(&char).unwrap() {
+        if c == ' ' {
             continue;
         };
-        let character_type = char_type(char.clone());
+        let char = c.to_string();
+        let character_type = char_type(char.clone().as_str());
         let combined_type: u8;
         if let Some(working_lexeme) = lexemes.last_mut() {
             clog!("Current lexeme:{}", working_lexeme);
             let combination = format!("{}{}", working_lexeme, char);
             clog!("Testing: {}+{} ({})", working_lexeme, char, combination);
-            combined_type = string_type(combination);
+            combined_type = string_type(combination.as_str());
             clog!(
                 "{} & {} = {} ({})",
                 combined_type,
@@ -52,15 +42,15 @@ pub fn scan(input: String) -> Vec<String> {
     out
 }
 
-fn string_type(string: String) -> u8 {
+fn string_type(string: &str) -> u8 {
     let mut out: u8 = 0;
-    if NUMERIC.is_match(&string).unwrap() {
+    if is_number(&string) {
         out += 4;
     }
-    if ALPHABETIC.is_match(&string).unwrap() {
+    if is_variable_id(&string) {
         out += 2;
     }
-    if OPERATIONAL.is_match(&string).unwrap() {
+    if is_operational(&string) {
         out += 1;
     }
     if out != 0 {
@@ -70,15 +60,15 @@ fn string_type(string: String) -> u8 {
     }
 }
 
-fn char_type(string: String) -> u8 {
+fn char_type(string: &str) -> u8 {
     let mut out: u8 = 0;
-    if NUMERIC_CHAR.is_match(&string).unwrap() {
+    if is_numeric(&string) {
         out += 4;
     }
-    if ALPHABETIC_CHAR.is_match(&string).unwrap() {
+    if is_alphabetic(&string) {
         out += 2;
     }
-    if OPERATIONAL.is_match(&string).unwrap() {
+    if is_operational(&string) {
         out += 1;
     }
     out

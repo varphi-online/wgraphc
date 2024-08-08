@@ -58,7 +58,10 @@ impl AbstractSyntaxTree {
             if !self.error {
                 Some(self.value.clone())
             } else {
-                clog!("Error somehwere in AST creation, \n\nAST dump:\n{}",serde_json::to_string(self).unwrap());
+                clog!(
+                    "Error somehwere in AST creation, \n\nAST dump:\n{}",
+                    serde_json::to_string(self).unwrap()
+                );
                 None
             }
         } else {

@@ -1,8 +1,8 @@
-use serde::{Deserialize, Serialize};
-use super::{arity::Arities,op_vec::OpVec,token::Token,value::Value};
-use num_complex::{Complex64,c64};
-use std::collections::HashMap;
+use super::{arity::Arities, op_vec::OpVec, token::Token, value::Value};
 use crate::util::clog;
+use num_complex::{c64, Complex64};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -99,7 +99,6 @@ impl Operator {
             .clone()
     }
 
-
     pub fn eval(&self, val: Complex64) -> Complex64 {
         let error: &str = "Improperly constructed input";
         match self.token_type {
@@ -109,7 +108,7 @@ impl Operator {
                 //if let Some(mapped_var) = varmap.get(&self.symbol) {
                 //    Complex64::from_str(mapped_var).unwrap()
                 //} else {
-                    val
+                val
                 //}
             }
             Token::Add => self.idx(0).eval(val) + self.idx(1).eval(val),
@@ -117,10 +116,7 @@ impl Operator {
             Token::Mult => self.idx(0).eval(val) * self.idx(1).eval(val),
             Token::Div => self.idx(0).eval(val) / self.idx(1).eval(val),
             Token::Sqrt => self.idx(0).eval(val).sqrt(),
-            Token::Pow => self
-                .idx(0)
-                .eval(val)
-                .powc(self.idx(1).eval(val)),
+            Token::Pow => self.idx(0).eval(val).powc(self.idx(1).eval(val)),
             Token::Sin => self.idx(0).eval(val).sin(),
             Token::Cos => self.idx(0).eval(val).cos(),
             Token::Tan => self.idx(0).eval(val).tan(),
@@ -134,36 +130,37 @@ impl Operator {
         }
     }
 
-    pub fn flatten(&self, map: HashMap<String,Operator>) -> Operator{
+    pub fn flatten(&self, map: HashMap<String, Operator>) -> Operator {
         /*
         Removes unnessecary reads of pre-defined variables by flattening all
         constants into a num-type instead of ID type.
         */
         match self.token_type {
-            Token::Num =>{
-                self.clone()
-            }
+            Token::Num => self.clone(),
             Token::ID => {
                 if let Some(mapped_var) = map.get(&self.symbol) {
                     mapped_var.clone()
                 } else {
                     self.clone()
                 }
-            },
+            }
             _ => match self.arity {
                 Arities::BINARY => {
                     let mut out = self.clone();
-                    out.values.set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
-                    out.values.set_index(1, self.values.get_index(1).unwrap().flatten(map.clone()));
+                    out.values
+                        .set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
+                    out.values
+                        .set_index(1, self.values.get_index(1).unwrap().flatten(map.clone()));
                     out
-                },
+                }
                 Arities::UNARY => {
                     let mut out = self.clone();
-                    out.values.set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
+                    out.values
+                        .set_index(0, self.values.get_index(0).unwrap().flatten(map.clone()));
                     out
-                },
+                }
                 _ => self.clone(),
-            }
+            },
         }
     }
 
@@ -173,15 +170,10 @@ impl Operator {
             Token::Num => true,
             Token::ID => false,
             _ => match self.arity {
-                Arities::BINARY => {
-                    self.idx(0).is_constant() &
-                    self.idx(1).is_constant()
-                },
-                Arities::UNARY => {
-                    self.idx(0).is_constant()
-                },
+                Arities::BINARY => self.idx(0).is_constant() & self.idx(1).is_constant(),
+                Arities::UNARY => self.idx(0).is_constant(),
                 _ => true,
-            }
+            },
         }
     }
 
@@ -198,14 +190,14 @@ impl Operator {
                     out.append(&mut self.idx(0).dependencies());
                     out.append(&mut self.idx(1).dependencies());
                     out
-                },
+                }
                 Arities::UNARY => {
                     out.append(&mut self.idx(0).dependencies());
                     out
-                },
+                }
                 _ => out,
-            }
-    }
+            },
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
-mod parser;
 mod graph;
+mod parser;
 
 pub mod util {
     use wasm_bindgen::prelude::*;
@@ -16,7 +16,7 @@ pub mod util {
     // `bare_bones`
     ($($t:tt)*) => (crate::util::log(&format_args!($($t)*).to_string()))
     }
-    
+
     #[cfg(not(debug_assertions))]
     macro_rules! clog {
         ($($t:tt)*) => {};

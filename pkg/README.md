@@ -9,6 +9,7 @@ TODO:
 - Function customization
 - Dynamic sliders
 - Mouse hints/point data/text to screen
+- Optimize parser
 
 ---
 

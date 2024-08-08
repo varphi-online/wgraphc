@@ -1,6 +1,6 @@
-use super::{operator::Operator,op_vec::OpVec};
-use serde::{Deserialize, Serialize};
+use super::{op_vec::OpVec, operator::Operator};
 use num_complex::Complex64;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -14,7 +14,7 @@ pub enum Value {
 impl Value {
     pub fn set_index(&mut self, i: usize, val: Operator) {
         if let Value::Op(ref mut opvector) = self {
-            opvector.set(i,val);
+            opvector.set(i, val);
         }
     }
     pub fn get_index(&self, i: usize) -> Option<Operator> {
