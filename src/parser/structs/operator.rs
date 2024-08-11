@@ -2,7 +2,8 @@ use super::{arity::Arities, op_vec::OpVec, token::Token, value::Value};
 use crate::util::clog;
 use num_complex::{c64, Complex64};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, f64::consts::{E, PI}};
+use lazy_static::lazy_static;
 use std::fmt;
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -33,6 +34,12 @@ impl Operator {
         Operator {
             ..Default::default()
         }
+    }
+
+    pub fn from_value(val_to_add: Value) -> Operator {
+        let mut out: Operator = Operator::from_token(Token::Num);
+        out.values = val_to_add;
+        out
     }
 
     pub fn from_token(type_of_token: Token) -> Operator {
@@ -139,6 +146,8 @@ impl Operator {
             Token::Num => self.clone(),
             Token::ID => {
                 if let Some(mapped_var) = map.get(&self.symbol) {
+                    mapped_var.clone()
+                } else if let Some(mapped_var) = CONSTANTS.get(&self.symbol){
                     mapped_var.clone()
                 } else {
                     self.clone()
@@ -247,4 +256,16 @@ impl fmt::Debug for Operator {
             }
         }
     }
+}
+
+lazy_static!{
+    pub static ref CONSTANTS: HashMap<String,Operator> = {
+        let mut out = HashMap::new();
+        out.insert("i".to_string(), Operator::from_value(Value::Number(Complex64::i())));
+        out.insert("pi".to_string(), Operator::from_value(Value::Number(Complex64::new(PI, 0.0))));
+        out.insert("e".to_string(), Operator::from_value(Value::Number(Complex64::new(E, 0.0))));
+        out.insert("phi".to_string(), Operator::from_value(Value::Number(Complex64::new(
+            1.618033988749894848204586834365, 0.0))));
+        out
+    };
 }

@@ -5,9 +5,8 @@ A tool to visualize and modify functions that act in both the real and complex p
 TODO:
 
 - Add a is_complex function to ast
-- constants like PI, e, phi etc...
 - Function customization
-- Dynamic sliders
+- Dynamic/Playable sliders
 - Mouse hints/point data/text to screen
 - Optimize parser
 
@@ -40,7 +39,7 @@ A non-exhaustive checklist on what is needed to complete this project:
 - [x] Being able to select the coordinate space of the output for different views
 - [ ] Multiple views that move simultaneously of the output data
       (calculate once, render n-times)
-- [ ] Better input, n-many input boxes, all formatted with KaTeX live rendering
+- [x] Better input, n-many input boxes
 
 Optional:
 
@@ -55,8 +54,8 @@ I learn any new paridigms or design patterns that I want/need to impl. I will
 add them here:
 
 - [x] Debug "mode" to only compile console_log!'s when told.
-- [ ] Canvas modification via wasm
-- [ ] canvas compositing and instantiation for each function.
+- [x] Canvas modification via wasm
+- [x] canvas compositing and instantiation for each function.
 
 ---
 

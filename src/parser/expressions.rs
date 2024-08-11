@@ -8,7 +8,7 @@ pub fn is_numeric(char: &str) -> bool {
 }
 
 pub fn is_operational(char: &str) -> bool {
-    "+-*/^()".contains(char)
+    "+ - * / ^ ( )".contains(char)
 }
 
 pub fn is_variable_id(input: &str) -> bool {

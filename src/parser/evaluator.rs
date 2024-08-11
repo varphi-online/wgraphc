@@ -1,5 +1,7 @@
 use structs::{abstract_syntax_tree, operator::Operator};
 
+use crate::util::clog;
+
 use super::*;
 
 pub fn string_to_ast_str(input: String) -> String {
@@ -11,6 +13,7 @@ pub fn string_to_ast_str(input: String) -> String {
 
 pub fn string_to_operator(input: String) -> Option<Operator> {
     let lexemes = lexer::scan(input);
+    clog!("Scanned lexemes: {:?}",lexemes);
     let tokens = tokenizer::tokenize(lexemes);
     let mut abstract_tree = abstract_syntax_tree::AbstractSyntaxTree::default();
     abstract_tree.from_shunting_yard(tokens)

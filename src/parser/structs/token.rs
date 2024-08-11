@@ -72,8 +72,4 @@ lazy_static! {
         out.insert(")".to_string(), Token::ClosePar);
         out
     };
-    static ref SYMBOLS: HashMap<Token, String> = OPERATORS
-        .iter()
-        .map(|(k, v)| (v.clone(), k.clone()))
-        .collect();
 }
