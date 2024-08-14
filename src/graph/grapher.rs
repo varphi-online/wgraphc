@@ -111,6 +111,8 @@ pub fn draw_cnv(
                 todraw.push(to_screenspace(num, out.0));
             }
         } else {
+            // Ends of y are [inf,0]
+            // Ends of x are [0,inf]
             for y in (0..GRAPH_RESOLUTION * resolution).rev() {
                 let input_imag: f64 = y as f64 * sfy + low_y_snap_bound;
                 for x in 0..(GRAPH_RESOLUTION * resolution) {
@@ -152,7 +154,7 @@ pub fn draw_cnv(
                 }
             }
         }
-        draw_to_context(todraw, continuity, ctx, color);
+        draw_to_context(todraw, continuity, ctx, color, resolution);
     }
 }
 
@@ -161,27 +163,35 @@ fn draw_to_context(
     continuity: bool,
     context: OffscreenCanvasRenderingContext2d,
     color: String,
+    rez: i64,
 ) {
     if continuity {
-        //BUG: Fix bug with the start and end of a quadratic curve and the
-        //imaginary input where the loop seems to close over the vector
-
         context.set_stroke_style(&JsValue::from_str(color.as_str()));
         context.set_line_width(2.0);
+        context.set_font("10px serif");
+        let line_size = (rez * GRAPH_RESOLUTION) as usize;
+        let chunks = points.chunks(line_size);
+        let horizontal_lines: Vec<Vec<[f64; 2]>> = chunks.map(|chunk| chunk.to_vec()).collect();
+
+        let quadratic = |p1: [f64; 2], p2: [f64; 2]| {
+            let x_control = (p1[0] + p2[0]) / 2.0;
+            let y_control = (p1[1] + p2[1]) / 2.0;
+            context.quadratic_curve_to(p1[0], p1[1], x_control, y_control);
+        };
 
         context.begin_path();
-        context.move_to(points[0][0], points[0][1]);
-        for i in 0..points.len() - 1 {
-            let x_control = (points[i][0] + points[i + 1][0]) / 2.0;
-            let y_control = (points[i][1] + points[i + 1][1]) / 2.0;
-            context.quadratic_curve_to(
-                points[i][0].round(),
-                points[i][1].round(),
-                x_control.round(),
-                y_control.round(),
-            );
+        for line in &horizontal_lines {
+            context.move_to(line[0][0], line[0][1]);
+            for i in 0..line_size - 1 {
+                quadratic(line[i], line[i + 1]);
+            }
         }
-
+        for col in 0..line_size {
+            context.move_to(horizontal_lines[0][col][0], horizontal_lines[0][col][1]);
+            for row in 0..horizontal_lines.len() - 1 {
+                quadratic(horizontal_lines[row][col], horizontal_lines[row + 1][col]);
+            }
+        }
         context.stroke();
     } else {
         context.set_fill_style(&JsValue::from_str(color.as_str()));

@@ -351,6 +351,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_setlineWidth_8ceaa29cc0ce9e05 = function(arg0, arg1) {
         getObject(arg0).lineWidth = arg1;
     };
+    imports.wbg.__wbg_setfont_9ec36cf635a84e40 = function(arg0, arg1, arg2) {
+        getObject(arg0).font = getStringFromWasm0(arg1, arg2);
+    };
     imports.wbg.__wbg_moveTo_1bb0eb54391175e3 = function(arg0, arg1, arg2) {
         getObject(arg0).moveTo(arg1, arg2);
     };

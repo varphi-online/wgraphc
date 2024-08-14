@@ -9,6 +9,8 @@ TODO:
 - Dynamic/Playable sliders
 - Mouse hints/point data/text to screen
 - Optimize parser
+- fix discontinuities
+- Grid mode
 
 ---
 
