@@ -27,4 +27,16 @@ canvas.event_init(canvas, graph);
 export async function render() {
     await graph.render(canvas, mainCanvasContext, graph, Array.from(function_array.values()), var_map);
 }
+window.addEventListener("resize", async function () {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.resetBitmap(mainCanvasContext);
+    Array.from(function_array.values()).forEach((ctx) => {
+        ctx.height = window.innerHeight;
+        ctx.width = window.innerWidth;
+        ctx.resetBitmap();
+    });
+    graph.resize(canvas);
+    render();
+});
 render();

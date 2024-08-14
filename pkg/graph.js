@@ -61,6 +61,7 @@ export class canvasContainer {
         this.object.style.width = this.width + "px";
         this.object.height = this.height;
         this.object.width = this.width;
+        this.aspectRatio = this.height / this.width;
         context.font = "15px serif";
         context.strokeStyle = "white";
         context.lineWidth = 3;
@@ -133,6 +134,13 @@ export class graphContainer {
         let normReal = 1 - (this.bounds[1] - real) / (this.bounds[1] - this.bounds[0]);
         let normImag = (this.bounds[3] - imag) / (this.bounds[3] - this.bounds[2]);
         return [normReal * canvas.width, normImag * canvas.height];
+    }
+    resize(canvas) {
+        this.initialBounds[2] = this.initialBounds[0] * canvas.aspectRatio;
+        this.initialBounds[3] = this.initialBounds[1] * canvas.aspectRatio;
+        this.updateBounds();
+        this.sensitivity = 0.0217791 * canvas.aspectRatio;
+        render();
     }
     async render(canvas, ctx, graph, offscreens, vars) {
         let frameTime = new Date().getTime();
@@ -247,20 +255,6 @@ export class proceduralOffscreen {
         this.object.width = this.width;
     }
     set_draw(value) {
-        console.log("Set draw to: " + value);
         this.draw = value;
     }
-}
-function resize(canvas, ctx, graph) {
-    canvas.resetBitmap(ctx);
-    canvas.init();
-    ctx.font = "15px serif";
-    ctx.strokeStyle = "white";
-    ctx.textAlign = "center";
-    graph.initialBounds[2] = graph.initialBounds[0] * canvas.aspectRatio;
-    graph.initialBounds[3] = graph.initialBounds[1] * canvas.aspectRatio;
-    //TODO: This cursed constant only works with the normal aspect ratios defined by
-    // scrolling and screen size, need to fix for user-defined aspect ratios
-    graph.sensitivity = 0.0217792 * canvas.aspectRatio;
-    graph.updateBounds();
 }

@@ -58,9 +58,9 @@ pub fn draw_cnv(
 
     if let Some(ast) = optimize_function(func, vars) {
         let apply_transformation = |inp1: &f64, inp2: &f64| -> (f64, f64) {
-            let num = Complex64::new(inp1.clone(), inp2.clone());
+            let num = Complex64::new(*inp1, *inp2);
             let calc = ast.eval(num);
-            return (calc.re, calc.im);
+            (calc.re, calc.im)
         };
 
         /*
@@ -111,8 +111,6 @@ pub fn draw_cnv(
                 todraw.push(to_screenspace(num, out.0));
             }
         } else {
-            // Ends of y are [inf,0]
-            // Ends of x are [0,inf]
             for y in (0..GRAPH_RESOLUTION * resolution).rev() {
                 let input_imag: f64 = y as f64 * sfy + low_y_snap_bound;
                 for x in 0..(GRAPH_RESOLUTION * resolution) {
