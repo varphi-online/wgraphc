@@ -16,7 +16,7 @@
 
 
 :root {
-    --midnight: #505c63a5;
+    --midnight: #717e85a5;
     --midnightX: #505c63a5;
     --sunset: #e68269ac;
     --beige: #ECCEAE;
@@ -123,7 +123,28 @@
     transform: translate(-110%, -50%);
 }
 
+#settings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
 
+details
+{
+    transition: height 0.5s ease;
+    overflow: hidden;
+}
+
+details:not([open])
+{
+    height: 1.25em;
+}
+
+details[open]
+{
+    height: 50vh;
+}
 #sliders::before {
     content: '';
     position: absolute;
@@ -275,6 +296,8 @@
     display: grid;
     grid-row: 2;
     width: 90%;
+    position: relative;
+    margin-top: 2vh;
 }
 
 .selector {
@@ -323,9 +346,9 @@
     width: 1vh;
 }
 
-#resetView {
+.resetView {
     font-family: "Space Grotesk";
-    background: var(--midnightX);
+    background: var(--midnight);
     color: #f4f9ff;
     border-radius: 5px;
     height: 3vh;
@@ -335,8 +358,8 @@
     border: none;
 }
 
-#resetView:active {
-    border: 2px inset gray;
+.resetView:active {
+    border: 2px solid white;
 }
 
 .numInp {

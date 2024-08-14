@@ -10,8 +10,15 @@ pub fn scan(input: String) -> Vec<String> {
     let mut lexemes: Vec<String> = Vec::new();
     lexemes.push(String::from(""));
 
+    if input.len() <= 0{
+        // fail on empty input
+        lexemes.push("+".to_string());
+        lexemes.push("-".to_string());
+        return lexemes;
+    }
+
     for c in input.chars() {
-        if c == ' ' {
+        if c == ' '{
             continue;
         };
         let char = c.to_string();

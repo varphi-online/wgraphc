@@ -205,9 +205,15 @@ class function_box {
                 // Update mappings
                 self.context_map.delete(self.index);
                 set_varmap(await del_variable(self.mapped_var_name, var_map));
-                self.previous.text_box.focus();
+                let prev = self.previous.text_box;
                 self.previous.next = self.next;
                 self.parent.container.removeChild(self.container);
+                // We do not want to remove the end of the previous text box with
+                // the backspace key still pressed down.
+                await new Promise(resolve => {
+                    window.addEventListener('keyup', resolve, { once: true });
+                });
+                prev.focus();
             }
         });
         // Slider changes will be reflected in the varmap and the sister text-box
@@ -327,6 +333,7 @@ export class function_text_inputs {
     container;
     name_map;
     context_map;
+    addbtn;
     constructor(map) {
         this.function_boxes = [];
         this.container = document.getElementById("inputs");
@@ -335,6 +342,19 @@ export class function_text_inputs {
         let first_box = new function_box(this, map);
         this.function_boxes.push(first_box);
         this.container.appendChild(this.function_boxes[0].container);
+        this.addbtn = document.getElementById("add");
+        let self = this;
+        this.addbtn.addEventListener("click", function () {
+            let new_box = new function_box(self, map);
+            // -2 because the function_box constructor adds itsself to the
+            // internal array,so the last text box is not at the very end of the list
+            let last_box = self.function_boxes[self.function_boxes.length - 2];
+            new_box.previous = last_box;
+            last_box.next = new_box;
+            self.function_boxes.push(new_box);
+            self.container.appendChild(new_box.container);
+            new_box.text_box.focus();
+        });
     }
 }
 export class metaUIContainer {
