@@ -152,22 +152,31 @@ pub fn draw_cnv(
                 }
             }
         }
-        draw_to_context(todraw, continuity, ctx, color, resolution);
+        draw_to_context(todraw, continuity, ctx, color, resolution, [canvas_pixel_width,canvas_pixel_height]);
     }
 }
 
 fn draw_to_context(
-    points: Vec<[f64; 2]>,
+    mut points: Vec<[f64; 2]>,
     continuity: bool,
     context: OffscreenCanvasRenderingContext2d,
     color: String,
     rez: i64,
+    bounds: [f64; 2],
 ) {
     if continuity {
+        let clamp_tolerance: f64 = 100.0;
         context.set_stroke_style(&JsValue::from_str(color.as_str()));
         context.set_line_width(2.0);
         context.set_font("10px serif");
         let line_size = (rez * GRAPH_RESOLUTION) as usize;
+        // Don't want to draw way outside of screen
+        points = points.iter().map(|p: &[f64; 2]| -> [f64; 2] {
+            [
+                p[0].clamp(-clamp_tolerance, bounds[0]+clamp_tolerance),
+                p[1].clamp(-clamp_tolerance, bounds[1]+clamp_tolerance),
+            ]
+        }).collect::<Vec<[f64; 2]>>();
         let chunks = points.chunks(line_size);
         let horizontal_lines: Vec<Vec<[f64; 2]>> = chunks.map(|chunk| chunk.to_vec()).collect();
 

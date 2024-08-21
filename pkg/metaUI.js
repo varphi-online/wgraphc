@@ -228,6 +228,7 @@ class function_box {
                 let [r, i] = self.variable_value;
                 self.text_box_evaluated.innerText = r.toPrecision(4) + "+" + i.toPrecision(4) + "i";
             }
+            self.parent.function_boxes.forEach(box => { box.update(recursion_limit); });
             await render();
         };
         this.slider_imag.oninput = async function () {
