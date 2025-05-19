@@ -11,9 +11,9 @@ use super::structs::{
 
 pub fn tokenize(lexemes: Vec<String>) -> OpVec {
     let mut out: OpVec = to_tokens(lexemes);
-    clog!("Basic token stream: {}",out);
+    clog!("Basic token stream: {}", out);
     out = apply_partial_grammar(out);
-    clog!("Partial Grammar: {}",out);
+    clog!("Partial Grammar: {}", out);
     out
 }
 
@@ -196,7 +196,8 @@ fn apply_partial_grammar(inp: OpVec) -> OpVec {
             match (&token.token_type, next.token_type) {
                 (Token::Num, Token::ID)
                 | (Token::Num, Token::OpenPar)
-                | (Token::ID, Token::OpenPar) => {
+                | (Token::ID, Token::OpenPar)
+                | (Token::ClosePar, Token::ID) => {
                     output.push(token);
                     output.push(Operator::from_token(Token::Mult));
                     continue;
